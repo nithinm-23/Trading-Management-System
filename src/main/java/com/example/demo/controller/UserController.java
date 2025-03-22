@@ -4,6 +4,8 @@ import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -47,14 +49,39 @@ public class UserController {
     }
 
     @PostMapping("/{id}/addBalance")
-    public ResponseEntity<User> addBalance(@PathVariable Long id, @RequestParam Double amount) {
+    public ResponseEntity<User> addBalance(@PathVariable Long id, @RequestBody Map<String, Double> request) {
+        Double amount = request.get("amount");
+        if (amount == null || amount <= 0) {
+            return ResponseEntity.badRequest().body(null);
+        }
         User updatedUser = userService.addBalance(id, amount);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @PostMapping("/{id}/removeBalance")
-    public ResponseEntity<User> removeBalance(@PathVariable Long id, @RequestParam Double amount) {
-        User updatedUser = userService.removeBalance(id, amount);
+
+    @PostMapping("/{id}/withdrawBalance")
+    public ResponseEntity<User> withdrawBalance(@PathVariable Long id, @RequestBody Map<String, Double> request) {
+        Double amount = request.get("amount");
+
+        if (amount == null || amount <= 0) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        User updatedUser = userService.withdrawBalance(id, amount);
+        if (updatedUser == null) {
+            return ResponseEntity.badRequest().body(null);  // Handle insufficient funds
+        }
+
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

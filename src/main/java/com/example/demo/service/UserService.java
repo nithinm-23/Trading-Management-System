@@ -63,7 +63,7 @@ public class UserService {
     }
 
     // Remove balance from user
-    public User removeBalance(Long userId, Double amount) {
+    public User withdrawBalance(Long userId, Double amount) {
         return userRepository.findById(userId).map(user -> {
             if (user.getBalance() < amount) {
                 throw new RuntimeException("Insufficient balance!");
@@ -71,5 +71,9 @@ public class UserService {
             user.setBalance(user.getBalance() - amount);
             return userRepository.save(user);
         }).orElseThrow(() -> new RuntimeException("User not found!"));
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElse(null);
     }
 }
