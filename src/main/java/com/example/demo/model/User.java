@@ -20,57 +20,60 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private Double balance = 0.0; // New field for balance
+    private Double balance = 0.0; // Balance field
+
+    @Column(unique = true, nullable = false, length = 10)
+    private String panNumber;  // New field for PAN
+
+    @Column(unique = true, nullable = false, length = 10)
+    private String mobileNumber; // New field for Mobile
+
+    @Column(nullable = false)
+    private String gender; // New field for Gender
+
+    @Column(nullable = false)
+    private String dob; // New field for Date of Birth (YYYY-MM-DD format)
 
     public User() {}
 
-    public User(String email, String password, Double balance) {
+    public User(String email, String password, Double balance, String panNumber, String mobileNumber, String gender, String dob) {
         this.email = email;
         this.password = password;
         this.balance = balance;
+        this.panNumber = panNumber;
+        this.mobileNumber = mobileNumber;
+        this.gender = gender;
+        this.dob = dob;
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public Double getBalance() { return balance; }
+    public void setBalance(Double balance) { this.balance = balance; }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getPanNumber() { return panNumber; }
+    public void setPanNumber(String panNumber) { this.panNumber = panNumber; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public String getMobileNumber() { return mobileNumber; }
+    public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
 
-    public Double getBalance() {
-        return balance;
-    }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
+    public String getDob() { return dob; }
+    public void setDob(String dob) { this.dob = dob; }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Watchlist> watchlists = new HashSet<>();
 
-    public Set<Watchlist> getWatchlists() {
-        return watchlists;
-    }
-
-    public void setWatchlists(Set<Watchlist> watchlists) {
-        this.watchlists = watchlists;
-    }
+    public Set<Watchlist> getWatchlists() { return watchlists; }
+    public void setWatchlists(Set<Watchlist> watchlists) { this.watchlists = watchlists; }
 }
