@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class Watchlist {
     private User user;  // Each watchlist belongs to a user
 
     @OneToMany(mappedBy = "watchlist", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<WatchlistStock> stocks = new HashSet<>();  // Stocks in this watchlist
 
     // Constructors

@@ -19,9 +19,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private Double balance = 0.0; // Balance field
-
     @Column(unique = true, nullable = false, length = 10)
     private String panNumber;  // New field for PAN
 
@@ -33,6 +30,9 @@ public class User {
 
     @Column(nullable = false)
     private String dob; // New field for Date of Birth (YYYY-MM-DD format)
+
+    @Column(name = "balance", nullable = false, columnDefinition = "double default 0.0")
+    private double balance = 0.0;
 
     public User() {}
 

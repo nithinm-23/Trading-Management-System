@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.model.Portfolio;
 import com.example.demo.model.Stock;
 import com.example.demo.repository.StockRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,7 +24,7 @@ public class StockService {
     @Value("${alpha_vantage.api.key}")
     private String apiKey;
 
-    private static final List<String> INDIAN_STOCKS = Arrays.asList("IRCTC.BSE", "TCS.BSE", "INFY.BSE","ZOMATO.BSE","RELIANCE.BSE");
+    private static final List<String> INDIAN_STOCKS = Arrays.asList("TATAMOTORS.BSE","SBIN.BSE","YESBANK.BSE","HDFCBANK.BSE","ADANIPORTS.BSE","ADANIGREEN.BSE","ADANIGREEN.BSE","IRCTC.BSE", "TCS.BSE", "INFY.BSE","ZOMATO.BSE","RELIANCE.BSE");
     private int currentStockIndex = 0;  // Tracks which stock to fetch next
 
     public StockService(StockRepository stockRepository, RestTemplate restTemplate) {
@@ -31,19 +32,19 @@ public class StockService {
         this.restTemplate = restTemplate;
     }
 
-//    @Scheduled(cron = "0 * 9-10 * * ?") // Runs every minute from 09:00 to 10:59 (IST)
-//    public void fetchStockDataScheduled() {
-//        if (INDIAN_STOCKS.isEmpty()) {
-//            System.out.println("No stocks to fetch.");
-//            return;
-//        }
-//
-//        String stockSymbol = INDIAN_STOCKS.get(currentStockIndex);
-//        fetchAndStoreStock(stockSymbol);
-//
-//        // Move to the next stock (round-robin)
-//        currentStockIndex = (currentStockIndex + 1) % INDIAN_STOCKS.size();
-//    }
+    @Scheduled(cron = "0 * 19-21 * * ?") // Runs every minute from 09:00 to 10:59 (IST)
+    public void fetchStockDataScheduled() {
+        if (INDIAN_STOCKS.isEmpty()) {
+            System.out.println("No stocks to fetch.");
+            return;
+        }
+
+        String stockSymbol = INDIAN_STOCKS.get(currentStockIndex);
+        fetchAndStoreStock(stockSymbol);
+
+        // Move to the next stock (round-robin)
+        currentStockIndex = (currentStockIndex + 1) % INDIAN_STOCKS.size();
+    }
 
     public void fetchAndStoreStock(String stockSymbol) {
         try {
@@ -104,7 +105,7 @@ public class StockService {
 
     // New method to fetch all stocks
     public List<Stock> getAllStocks() {
-        return stockRepository.findAll();
+        return stockRepository.findLatestStocks();
     }
 
     public List<Stock> getStockBySymbol(String symbol) {
@@ -115,4 +116,39 @@ public class StockService {
     public Optional<Stock> getLatestStockBySymbol(String symbol) {
         return stockRepository.findLatestBySymbol(symbol);
     }
+
+    public Double getCurrentPrice(String symbol) {
+        Optional<Stock> latestStock = stockRepository.findLatestBySymbol(symbol);
+        return latestStock.map(Stock::getClosePrice).orElse(null);
+    }
+
+    public Map<String, Double> getCurrentPrices(List<String> symbols) {
+        Map<String, Double> prices = new HashMap<>();
+        for (String symbol : symbols) {
+            Optional<Stock> latestStock = stockRepository.findLatestBySymbol(symbol);
+            latestStock.ifPresent(stock -> prices.put(symbol, stock.getClosePrice()));
+        }
+        return prices;
+    }
+
+    public List<Portfolio> enrichWithCurrentPrices(List<Portfolio> portfolioItems) {
+        // Get all unique symbols from portfolio
+        List<String> symbols = portfolioItems.stream()
+                .map(Portfolio::getSymbol)
+                .distinct()
+                .toList();
+
+        // Get current prices for all symbols
+        Map<String, Double> currentPrices = getCurrentPrices(symbols);
+
+        // Enrich each portfolio item
+        portfolioItems.forEach(item -> {
+            Double currentPrice = currentPrices.get(item.getSymbol());
+            item.setCurrentPrice(currentPrice != null ? currentPrice : 0.0);
+        });
+
+        return portfolioItems;
+    }
+
+
 }

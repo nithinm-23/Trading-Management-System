@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,7 @@ public class WatchlistStock {
 
     @ManyToOne
     @JoinColumn(name = "watchlist_id", nullable = false)
+    @JsonIgnore
     private Watchlist watchlist;
 
     @ManyToOne

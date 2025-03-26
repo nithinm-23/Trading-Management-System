@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Stock;
+import com.example.demo.repository.StockRepository;
 import com.example.demo.service.StockService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +15,23 @@ import java.util.Optional;
 public class StockController {
     private final StockService stockService;
 
-    public StockController(StockService stockService) {
+
+
+//    public StockController(StockService stockService) {
+//        this.stockService = stockService;
+//    }
+
+    private final StockRepository stockRepository;
+
+    @Autowired
+    public StockController(StockService stockService, StockRepository stockRepository) {
         this.stockService = stockService;
+        this.stockRepository = stockRepository;
+    }
+
+    @GetMapping
+    public List<Stock> getLatestStocks() {
+        return stockRepository.findLatestStocks();
     }
 
     // Trigger stock fetch manually (for testing)
@@ -53,6 +70,4 @@ public class StockController {
         stockService.fetchAndStoreStock(symbol);
         return ResponseEntity.ok("Stock data for 100 days fetched and stored for: " + symbol);
     }
-
-
 }

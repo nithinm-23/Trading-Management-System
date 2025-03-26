@@ -1,44 +1,92 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Trade;
-import com.example.demo.model.TradeType;
+import com.example.demo.model.*;
 import com.example.demo.service.TradeService;
+import com.example.demo.service.StockService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/trades")
 public class TradeController {
 
     private final TradeService tradeService;
+    private final StockService stockService;
 
-    public TradeController(TradeService tradeService) {
+    public TradeController(TradeService tradeService, StockService stockService) {
         this.tradeService = tradeService;
+        this.stockService = stockService;
     }
 
-    @PostMapping("/execute")
-    public ResponseEntity<Trade> executeTrade(
+    @PostMapping("/buy")
+    public ResponseEntity<?> buyStock(
             @RequestParam Long userId,
-            @RequestParam String tickerSymbol,
-            @RequestParam TradeType tradeType,
-            @RequestParam int quantity,
-            @RequestParam BigDecimal tradePrice) {
+            @RequestParam String symbol,
+            @RequestParam int quantity) {
 
-        Trade executedTrade = tradeService.executeTrade(userId, tickerSymbol, tradeType, quantity, tradePrice);
-
-        if (executedTrade == null) {
-            return ResponseEntity.badRequest().build();  // Return 400 Bad Request if trade execution fails
+        try {
+            double currentPrice = stockService.getCurrentPrice(symbol);
+            Trade trade = tradeService.executeTrade(userId, symbol, TradeType.BUY, quantity, currentPrice);
+            return ResponseEntity.ok(trade);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "error", "Buy trade failed",
+                            "message", e.getMessage()
+                    )
+            );
         }
-
-        return ResponseEntity.ok(executedTrade);
     }
 
+    @PostMapping("/sell")
+    public ResponseEntity<?> sellStock(
+            @RequestParam Long userId,
+            @RequestParam String symbol,
+            @RequestParam int quantity) {
+
+        try {
+            double currentPrice = stockService.getCurrentPrice(symbol);
+            Trade trade = tradeService.executeTrade(userId, symbol, TradeType.SELL, quantity, currentPrice);
+            return ResponseEntity.ok(trade);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "error", "Sell trade failed",
+                            "message", e.getMessage()
+                    )
+            );
+        }
+    }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Trade>> getUserTrades(@PathVariable Long userId) {
-        return ResponseEntity.ok(tradeService.getTradesByUser(userId));
+    public ResponseEntity<?> getUserTrades(@PathVariable Long userId) {
+        try {
+            return ResponseEntity.ok(tradeService.getUserTrades(userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "error", "Failed to fetch trades",
+                            "message", e.getMessage()
+                    )
+            );
+        }
+    }
+
+    @GetMapping("/user/{userId}/stock/{symbol}")
+    public ResponseEntity<?> getUserTradesForStock(
+            @PathVariable Long userId,
+            @PathVariable String symbol) {
+        try {
+            return ResponseEntity.ok(tradeService.getUserTradesForStock(userId, symbol));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "error", "Failed to fetch trades",
+                            "message", e.getMessage()
+                    )
+            );
+        }
     }
 }

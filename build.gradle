@@ -24,6 +24,8 @@ dependencies {
     // Correct MySQL Connector version
     implementation 'com.mysql:mysql-connector-j:8.0.33'
 
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
     // JSON library for handling JSON objects
     implementation 'org.json:json:20210307'
 

@@ -5,6 +5,7 @@ import com.example.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -86,7 +87,6 @@ public class UserController {
         }
     }
 
-
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
         User updated = userService.updateUser(id, updatedUser);
@@ -106,7 +106,6 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-
 
     @PostMapping("/{id}/addBalance")
     public ResponseEntity<User> addBalance(@PathVariable Long id, @RequestBody Map<String, Double> request) {
@@ -136,11 +135,45 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        System.out.println("Fetching user with ID: " + id);
         User user = userService.getUserById(id);
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PutMapping("/{id}/changePassword")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+
+        if (oldPassword == null || newPassword == null) {
+            return ResponseEntity.badRequest().body("Both old and new passwords are required.");
+        }
+
+        boolean isUpdated = userService.changePassword(id, oldPassword, newPassword);
+        if (isUpdated) {
+            return ResponseEntity.ok("Password updated successfully.");
+        } else {
+            return ResponseEntity.badRequest().body("Old password is incorrect.");
+        }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<User> updatePartialUser(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        User updatedUser = userService.updatePartialUser(id, updates);
+        if (updatedUser != null) {
+            return ResponseEntity.ok(updatedUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{userId}/balance")
+    public ResponseEntity<Map<String, Double>> getUserBalance(@PathVariable Long userId) {
+        double balance = userService.getBalance(userId);
+        return ResponseEntity.ok(Collections.singletonMap("balance", balance));
     }
 }

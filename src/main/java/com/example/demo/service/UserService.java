@@ -2,9 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -116,4 +118,71 @@ public class UserService {
         }
         return false;
     }
+
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Check if old password matches
+            if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                return false; // Incorrect old password
+            }
+
+            // Update with new hashed password
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    public User updatePartialUser(Long id, Map<String, Object> updates) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            if (updates.containsKey("email")) {
+                user.setEmail((String) updates.get("email"));
+            }
+            if (updates.containsKey("mobileNumber")) {
+                user.setMobileNumber((String) updates.get("mobileNumber"));
+            }
+
+            return userRepository.save(user);
+        }
+        return null;
+    }
+
+    // Add to your existing UserService class
+
+    @Transactional
+    public void deductFunds(Long userId, double amount) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getBalance() < amount) {
+            throw new RuntimeException("Insufficient funds");
+        }
+
+        user.setBalance(user.getBalance() - amount);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void addFunds(Long userId, double amount) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setBalance(user.getBalance() + amount);
+        userRepository.save(user);
+    }
+
+    public double getBalance(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getBalance();
+    }
+
 }

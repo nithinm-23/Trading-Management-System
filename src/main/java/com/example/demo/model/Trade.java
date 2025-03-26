@@ -1,52 +1,89 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "trades")
 public class Trade {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId; // Ensure this field exists
-    private String tickerSymbol; // Ensure this field exists
-    private TradeType tradeType; // Ensure this field exists
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "ticker_symbol", nullable = false)
+    private String symbol;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trade_type", nullable = false)
+    private TradeType type;
+
+    @Column(name = "quantity", nullable = false)
     private int quantity;
-    private BigDecimal tradePrice;
-    private LocalDateTime tradeDate;
 
-    // ✅ Default constructor (needed for Hibernate)
-    public Trade() {}
+    @Column(name = "trade_price", nullable = false)
+    private double price;
 
-    // ✅ Constructor for manual instantiation
-    public Trade(Long userId, String tickerSymbol, TradeType tradeType, int quantity, BigDecimal tradePrice, LocalDateTime tradeDate) {
-        this.userId = userId;
-        this.tickerSymbol = tickerSymbol;
-        this.tradeType = tradeType;
-        this.quantity = quantity;
-        this.tradePrice = tradePrice;
-        this.tradeDate = tradeDate;
+    @Column(name = "timestamp", nullable = false, columnDefinition = "datetime(6)")
+    private LocalDateTime timestamp;
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
     }
 
-    // ✅ Getter and Setter methods
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getTickerSymbol() { return tickerSymbol; }
-    public void setTickerSymbol(String tickerSymbol) { this.tickerSymbol = tickerSymbol; }
+    public Long getUserId() {
+        return userId;
+    }
 
-    public TradeType getTradeType() { return tradeType; }
-    public void setTradeType(TradeType tradeType) { this.tradeType = tradeType; }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public String getSymbol() {
+        return symbol;
+    }
 
-    public BigDecimal getTradePrice() { return tradePrice; }
-    public void setTradePrice(BigDecimal tradePrice) { this.tradePrice = tradePrice; }
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
 
-    public LocalDateTime getTradeDate() { return tradeDate; }
-    public void setTradeDate(LocalDateTime tradeDate) { this.tradeDate = tradeDate; }
+    public TradeType getType() {
+        return type;
+    }
+
+    public void setType(TradeType type) {
+        this.type = type;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 }
