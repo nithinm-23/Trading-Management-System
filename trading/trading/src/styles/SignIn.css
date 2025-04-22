@@ -1,0 +1,92 @@
+.signin-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("https://th.bing.com/th/id/OIP.jGT9HlkTEzA0wtpm_CDx8gHaEK?w=320&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7") no-repeat center center/cover;
+  animation: zoomEffect 10s infinite alternate ease-in-out;
+}
+
+@keyframes zoomEffect {
+  0% {
+    background-size: 100%;
+  }
+  100% {
+    background-size: 110%;
+  }
+}
+
+.row {
+  max-width: 800px;
+}
+
+.left-section {
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.8), rgba(0, 86, 179, 0.8)); 
+  text-align: center;
+}
+
+.left-section h2 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.left-section p {
+  font-size: 16px;
+}
+
+.bg-white {
+  border-radius: 8px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* New styles for Google OAuth */
+.text-muted {
+  color: #6c757d;
+  margin: 1rem 0;
+  display: block;
+  text-align: center;
+  position: relative;
+}
+
+.text-muted::before,
+.text-muted::after {
+  content: "";
+  position: absolute;
+  height: 1px;
+  width: 40%;
+  background-color: #dee2e6;
+  top: 50%;
+}
+
+.text-muted::before {
+  left: 0;
+}
+
+.text-muted::after {
+  right: 0;
+}
+
+/* Google button container */
+.d-flex.justify-content-center {
+  margin: 1rem 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .left-section {
+    padding: 2rem !important;
+  }
+  
+  .text-muted::before,
+  .text-muted::after {
+    width: 30%;
+  }
+}

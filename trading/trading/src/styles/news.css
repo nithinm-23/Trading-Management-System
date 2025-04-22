@@ -1,0 +1,122 @@
+/* News Cards */
+.news-card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    background: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .news-image-container {
+    height: 160px;
+    overflow: hidden;
+  }
+  
+  .news-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .news-card:hover .news-image-container img {
+    transform: scale(1.05);
+  }
+  
+  .news-content {
+    padding: 16px;
+    flex-grow: 1;
+  }
+  
+  .news-content h3 {
+    font-size: 1.1rem;
+    margin: 0 0 8px;
+    line-height: 1.4;
+  }
+  
+  .news-content .description {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 12px;
+  }
+  
+  .news-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #777;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+  }
+  
+  .read-more {
+    color: #3182ce;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  /* News Tabs */
+  .news-tabs-container {
+    margin-bottom: 24px;
+  }
+  
+  .news-tabs-header {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 16px;
+  }
+  
+  .tab-btn {
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+  }
+  
+  .tab-btn.active {
+    color: #3182ce;
+    border-bottom-color: #3182ce;
+  }
+  
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  /* Sentiment Meter */
+  .sentiment-meter {
+    margin: 20px 0;
+  }
+  
+  .meter-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  
+  .meter-track {
+    height: 10px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .meter-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+  }

@@ -1,0 +1,14 @@
+.clickable-row {
+    cursor: pointer;
+  }
+  .clickable-row:hover {
+    background-color: #f8f9fa;
+  }
+  .more-card {
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .more-card:hover {
+    background-color: #e9ecef;
+  }
+  

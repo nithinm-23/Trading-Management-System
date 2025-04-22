@@ -1,0 +1,36 @@
+.portfolio-summary {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .portfolio-summary h5 {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+  }
+  
+  .portfolio-summary p {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+  
+  .table th {
+    white-space: nowrap;
+  }
+  
+  .table td, .table th {
+    vertical-align: middle;
+  }
+  
+  .text-success {
+    color: #28a745 !important;
+    font-weight: 500;
+  }
+  
+  .text-danger {
+    color: #dc3545 !important;
+    font-weight: 500;
+  }
+.bg{
+    background-color: #007bff;
+}

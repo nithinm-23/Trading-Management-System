@@ -1,0 +1,55 @@
+/* src/styles/VerifyEmail.css */
+.verify-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  background-color: #f9f9f9;
+}
+
+.verify-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+
+.verify-card h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.otp-input {
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  margin: 1rem 0;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.verify-btn,
+.resend-btn {
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background-color: #00b386;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.verify-btn:hover,
+.resend-btn:hover {
+  background-color: #009e74;
+}
+
+.resend-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

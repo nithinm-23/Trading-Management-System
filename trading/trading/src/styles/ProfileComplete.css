@@ -1,0 +1,95 @@
+.profile-complete-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+    min-height: 100vh;
+    background: #f8f9fa;
+  }
+  
+  .form-card {
+    background: #fff;
+    padding: 2rem 3rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 480px;
+    animation: fadeIn 0.8s ease-in-out;
+  }
+  
+  .form-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #0d6efd;
+    font-weight: 600;
+  }
+  
+  .form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  
+  .floating-label input,
+  .floating-label select {
+    width: 100%;
+    padding: 1rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+    outline: none;
+    background: transparent;
+  }
+  
+  .floating-label label {
+    position: absolute;
+    top: 1rem;
+    left: 0.75rem;
+    color: #6c757d;
+    transition: 0.2s ease all;
+    pointer-events: none;
+  }
+  
+  .floating-label input:focus + label,
+  .floating-label input:not(:placeholder-shown) + label,
+  .floating-label select:focus + label,
+  .floating-label select:not([value=""]) + label {
+    top: -0.6rem;
+    left: 0.65rem;
+    font-size: 0.75rem;
+    background: #fff;
+    padding: 0 0.25rem;
+    color: #0d6efd;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+  }
+  
+  .submit-btn:hover {
+    background-color: #084cd1;
+  }
+  
+  .error-text {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: block;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

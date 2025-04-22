@@ -1,0 +1,248 @@
+/* Full page container */
+.profile-container {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+  }
+  
+  /* Sidebar styling */
+  .sidebar {
+    background-color: #ffffff;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  
+  .profile-info-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: none;
+    padding: 20px 10px;
+    margin-bottom: 25px;
+  }
+  
+  .profile-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .profile-initial {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #fff;
+    background-color: #0d6efd;
+  }
+  
+  .menu-list {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .list-item {
+    padding: 15px 20px;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+  }
+  
+  .list-item:last-child {
+    border-bottom: none;
+  }
+  
+  .list-item.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+  }
+  
+  /* Content area styling */
+  .content-area {
+    padding: 20px;
+    min-height: 100vh;
+  }
+  
+  .content-area .card {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: none;
+    min-height: calc(100vh - 40px);
+  }
+  
+  /* Form styling */
+  .form-container {
+    width: 80%; /* Adjust as needed */
+    max-width: 600px; /* Set max width */
+    margin: auto;
+  }
+  
+  .form-control, .form-select {
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(253, 126, 20, 0.25);
+  }
+  
+  .form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  
+  /* Button styling */
+  .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    border-radius: 8px;
+    padding: 1px 20px;
+    font-weight: 500;
+  }
+  
+  .btn-primary:hover, .btn-primary:focus {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+  
+  .btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+  }
+  
+  /* File upload styling */
+  .file-upload-container {
+    display: flex;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+  }
+  
+  .file-label {
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 10px 15px;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 500;
+    border: 1px solid #ddd;
+    border-right: none;
+  }
+  
+  .file-name {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 0 8px 8px 0;
+    background-color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .save-photo-btn {
+    padding: 10px 30px;
+    font-weight: 500;
+  }
+  
+  /* Profile image preview in upload form */
+  .profile-image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .sidebar, .content-area {
+      min-height: auto;
+    }
+    
+    .content-area .card {
+      min-height: auto;
+    }
+  }
+
+  .immutable-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    background-color: #f8f9fa;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+
+  /* Funds Section (Takes More Space) */
+.funds-container {
+  flex: 1; /* Takes more space */
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 1100px !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Proper Spacing Between Elements */
+.funds-content {
+  /* width: 1100px; */
+  display: flex;
+  justify-content: space-between;
+  gap: 30px; /* Space between balance & form sections */
+}
+
+.transaction-section {
+  width: 1100px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Adds space between Add & Withdraw sections */
+}
+
+/* Responsive Fix */
+@media (max-width: 992px) {
+  .content-area {
+    flex-direction: column;
+  }
+  
+  .profile-info-card, .funds-container {
+    max-width: 100%;
+    flex: auto;
+    width: 1100px;
+  }
+}
+
