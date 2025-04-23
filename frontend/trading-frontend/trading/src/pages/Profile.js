@@ -62,6 +62,7 @@ const Profile = ({ user }) => {
       };
 
       const userData = {
+        id: response.data.id,
         name: determineName(),
         panNumber: response.data.panNumber || "",
         dob: response.data.dob || "",
@@ -187,10 +188,13 @@ const Profile = ({ user }) => {
       // Determine the correct endpoint based on auth provider
       const endpoint =
         userData.provider === "google"
-          ? `http://localhost:8080/api/users/${userId}/complete-profile`
+          ? `http://localhost:8080/api/users/complete-profile`
           : `http://localhost:8080/api/users/${userId}`;
 
-      const response = await axios.put(endpoint, userDataFromState);
+      const response =
+        userData.provider === "google"
+          ? await axios.post(endpoint, userDataFromState)
+          : await axios.put(endpoint, userDataFromState);
 
       setUserDetails((prev) => ({
         ...prev,
