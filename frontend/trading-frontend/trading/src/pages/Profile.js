@@ -104,7 +104,8 @@ const Profile = ({ user }) => {
   }, []);
 
   const handleChangePassword = async (e) => {
-    const userId = localStorage.getItem("userData");
+    const userId = JSON.parse(localStorage.getItem("userData"))?.id;
+
     e.preventDefault();
     setMessage("");
 

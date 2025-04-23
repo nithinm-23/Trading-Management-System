@@ -360,7 +360,7 @@ public class UserService {
             User user = userOptional.get();
 
             // Only allow if user is a Google user without password
-            if ("google".equals(user.getProvider()) && user.getPassword() == null) {
+            if ("google".equals(user.getProvider())) {
                 user.setPassword(passwordEncoder.encode(newPassword));
                 userRepository.save(user);
                 return true;

@@ -192,6 +192,25 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{userId}/changePassword")
+    public ResponseEntity<?> changePassword(@PathVariable Long userId, @RequestBody Map<String, String> request) {
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+
+        if (oldPassword == null || newPassword == null) {
+            return ResponseEntity.badRequest().body("Missing old or new password");
+        }
+
+        boolean success = userService.changePassword(userId, oldPassword, newPassword);
+
+        if (success) {
+            return ResponseEntity.ok("Password changed successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid old password or user not found");
+        }
+    }
+
+
     public boolean changePassword(Long userId, String oldPassword, String newPassword) {
         Optional<User> userOptional = userRepository.findById(userId);
 
