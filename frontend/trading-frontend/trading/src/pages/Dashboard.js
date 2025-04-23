@@ -63,7 +63,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [timeframe, setTimeframe] = useState("1M");
 
-  const userId = localStorage.getItem("userId");
+  const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
   // Filter stocks based on search query
   const filteredStocks = stocksList.filter(

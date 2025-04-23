@@ -13,10 +13,10 @@ import org.springframework.web.client.RestTemplate;
 @EnableScheduling
 @EnableJpaRepositories(basePackages = "com.example.demo.repository")
 @EntityScan(basePackages = "com.example.demo.model")
-public class Demo2Application {
+public class TradingApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Demo2Application.class, args);
+        SpringApplication.run(TradingApplication.class, args);
     }
 
     @Bean

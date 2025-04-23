@@ -15,7 +15,7 @@ public class TwilioService {
     private String ACCOUNT_SID="AC0f9dbbc31cd08a287297ef70b7d16ef2";
 
 //    @Value("${twilio.auth_token}")
-    private String AUTH_TOKEN="1c5f9e908f88bb33a9bb4e2a90e5ba73";
+    private String AUTH_TOKEN="74895884602451b1e01c0944be8b53b0";
 
 //    @Value("${twilio.from_number}")
     private String FROM_NUMBER="+19786447259";

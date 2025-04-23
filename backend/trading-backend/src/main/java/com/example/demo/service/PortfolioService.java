@@ -18,7 +18,8 @@ public class PortfolioService {
     private final StockRepository stockRepository;
     private final UserRepository userRepository;
 
-    public PortfolioService(PortfolioRepository portfolioRepository, StockRepository stockRepository, UserRepository userRepository) {
+    public PortfolioService(PortfolioRepository portfolioRepository, StockRepository stockRepository,
+            UserRepository userRepository) {
         this.portfolioRepository = portfolioRepository;
         this.stockRepository = stockRepository;
         this.userRepository = userRepository;
@@ -32,8 +33,7 @@ public class PortfolioService {
     public Portfolio saveOrUpdatePortfolio(Portfolio portfolio) {
         Optional<Portfolio> existing = portfolioRepository.findByUserIdAndSymbol(
                 portfolio.getUserId(),
-                portfolio.getSymbol()
-        );
+                portfolio.getSymbol());
 
         if (existing.isPresent()) {
             Portfolio current = existing.get();
@@ -71,8 +71,7 @@ public class PortfolioService {
             throw new IllegalArgumentException("Insufficient stock quantity to sell");
         }
 
-        // Calculate sale amount (price should be fetched from a reliable source)
-        double sellPrice = getStockPriceFromDatabase(symbol); // Implement this method
+        double sellPrice = getStockPriceFromDatabase(symbol);
         double totalAmount = sellPrice * quantity;
 
         // Update user's funds
@@ -99,8 +98,5 @@ public class PortfolioService {
                 .orElseThrow(() -> new IllegalArgumentException("Stock price not found"))
                 .getClosePrice();
     }
-
-
-
 
 }

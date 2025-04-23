@@ -88,8 +88,6 @@ public class UserController {
         newUser.setVerified(false);
         newUser.setProfileCompleted(false);
 
-//        System.out.println("DTO Password: " + registrationDto.getPassword());
-
         User savedUser = userService.registerUser(newUser);
         return ResponseEntity.ok(savedUser);
     }
@@ -235,52 +233,6 @@ public class UserController {
         double balance = userService.getBalance(userId);
         return ResponseEntity.ok(Collections.singletonMap("balance", balance));
     }
-
-//    @PutMapping("/{id}/complete-profile")
-//    public ResponseEntity<?> completeProfile(
-//            @PathVariable Long id,
-//            @Valid @RequestBody ProfileCompletionRequest request,
-//            BindingResult bindingResult) {
-//        // Validation
-//        if (bindingResult.hasErrors()) {
-//            return ResponseEntity.badRequest().body("Invalid profile data");
-//        }
-//
-//        User user = userService.getUserById(id);
-//        if (user == null || !"google".equals(user.getProvider())) {
-//            return ResponseEntity.badRequest().body("Invalid user or provider");
-//        }
-//
-//        // Validate PAN format
-//        if (!request.getPanNumber().matches("[A-Z]{5}[0-9]{4}[A-Z]{1}")) {
-//            return ResponseEntity.badRequest().body("Invalid PAN format");
-//        }
-//
-//        // Validate mobile number
-//        if (!request.getMobileNumber().matches("\\d{10}")) {
-//            return ResponseEntity.badRequest().body("Invalid mobile number");
-//        }
-//
-//        // Validate gender
-//        if (!Arrays.asList("Male", "Female", "Other").contains(request.getGender())) {
-//            return ResponseEntity.badRequest().body("Invalid gender");
-//        }
-//
-//        // Update user
-//        user.setName(request.getName());
-//        user.setPanNumber(request.getPanNumber());
-//        user.setDob(request.getDob());
-//        user.setGender(request.getGender());
-//        user.setMobileNumber(request.getMobileNumber());
-//        user.setProfileCompleted(true);
-//
-//        try {
-//            User updatedUser = userService.save(user);
-//            return ResponseEntity.ok(updatedUser);
-//        } catch (Exception e) {
-//            return ResponseEntity.internalServerError().body("Failed to update profile");
-//        }
-//    }
 
     @PostMapping("/complete-profile")
     public ResponseEntity<?> completeUserProfile(@RequestBody ProfileRequest profileRequest, HttpServletRequest request) {

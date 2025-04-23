@@ -33,20 +33,17 @@ public class Portfolio {
     private Double currentPrice;
 
     // Constructors
-    public Portfolio() {}
+    public Portfolio() {
+    }
 
     public Portfolio(Long userId, String symbol, int quantity,
-                     double purchasePrice, LocalDate purchaseDate) {
+            double purchasePrice, LocalDate purchaseDate) {
         this.userId = userId;
         this.symbol = symbol;
         this.quantity = quantity;
         this.purchasePrice = purchasePrice;
         this.purchaseDate = purchaseDate;
     }
-
-    // Getters and Setters (keep all existing ones)
-    // ... (no changes needed to your existing getters/setters)
-
 
     public Long getId() {
         return id;

@@ -15,12 +15,6 @@ import java.util.Optional;
 public class StockController {
     private final StockService stockService;
 
-
-
-//    public StockController(StockService stockService) {
-//        this.stockService = stockService;
-//    }
-
     private final StockRepository stockRepository;
 
     @Autowired
