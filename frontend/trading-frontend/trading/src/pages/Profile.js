@@ -8,9 +8,9 @@ import {
   Card,
   ListGroup,
 } from "react-bootstrap";
-import "../styles/Profile.css"; // We'll create this separately
+import "../styles/Profile.css";
 import axios from "axios";
-import Funds from "../pages/Funds"; // Adjust path if necessary
+import Funds from "../pages/Funds";
 import { Alert } from "react-bootstrap";
 
 const Profile = ({ user }) => {

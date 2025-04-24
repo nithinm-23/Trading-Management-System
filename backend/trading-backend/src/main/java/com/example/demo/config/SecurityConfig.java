@@ -72,8 +72,11 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/email/send", "/api/email/verify").permitAll()
                                                 .requestMatchers("/api/payment").permitAll()
                                                 .requestMatchers("/api/payment/process").permitAll()
+                                                .requestMatchers("/api/payment/addCard").permitAll()
+                                                .requestMatchers(HttpMethod.DELETE, "/api/payment/deleteCard/*").permitAll() // ✅
 
-                                                .anyRequest().authenticated())
+
+                                        .anyRequest().authenticated())
                                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();

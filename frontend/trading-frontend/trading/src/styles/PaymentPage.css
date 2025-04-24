@@ -1,0 +1,213 @@
+/* Payment Page Styles */
+.payment-container {
+    padding: 2rem 0;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+  }
+  
+  .payment-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  
+  .payment-header {
+    background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  
+  .payment-title {
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .payment-body {
+    padding: 2rem;
+  }
+  
+  .payment-section {
+    padding: 1rem;
+    border-right: 1px solid #eee;
+  }
+  
+  .card-management-section {
+    padding: 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: #3a7bd5;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    margin-right: 0.75rem;
+  }
+  
+  .card-brand-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .card-brand-icon {
+    height: 32px;
+    width: auto;
+  }
+  
+  .card-type-label {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+  }
+  
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-icon {
+    position: absolute;
+    left: 12px;
+    color: #6c757d;
+    z-index: 10;
+  }
+  
+  .form-control {
+    padding-left: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    height: 45px;
+  }
+  
+  .form-control:focus {
+    border-color: #3a7bd5;
+    box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.25);
+  }
+  
+  .saved-card-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+  }
+  
+  .payment-button {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-top: 1rem;
+    height: 45px;
+  }
+  
+  .card-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.5rem;
+  }
+  
+  .toggle-card-form-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+  }
+  
+  .accepted-cards {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+
+  .card-management-section h5,
+.card-management-section .section-title {
+  margin-bottom: 1rem; /* Add margin below heading */
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.form-control {
+  padding-left: 2.75rem; /* more space for icon */
+}
+
+.form-control1 {
+  padding-left: 2.75rem; /* more space for icon */
+}
+
+  
+  .card-brands {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .row.d-flex {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+  
+  .payment-section,
+  .card-management-section {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  
+  @media (max-width: 767.98px) {
+    .payment-section {
+      border-right: none;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 2rem;
+      margin-bottom: 2rem;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .row.d-flex {
+      flex-wrap: wrap;
+    }
+  
+    .payment-section,
+    .card-management-section {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+
+  .row {
+    max-width: 100%;
+  }
+
+  .row1 {
+    max-width: 100%;
+  }
