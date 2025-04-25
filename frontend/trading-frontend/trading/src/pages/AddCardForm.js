@@ -127,6 +127,19 @@ const AddCardForm = ({ userId, onCardAdded }) => {
       return;
     }
 
+    const fullExpiryYear = 2000 + parseInt(expiryYear, 10);
+    const maxAllowedYear = new Date().getFullYear() + 10;
+
+    if (fullExpiryYear > maxAllowedYear) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Expiry Date",
+        text: `Expiry year can't be more than ${maxAllowedYear}. Please enter a valid expiry date.`,
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.post(
         "http://localhost:8080/api/payment/addCard",
