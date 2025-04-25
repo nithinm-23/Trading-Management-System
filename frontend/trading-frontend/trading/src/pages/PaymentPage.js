@@ -4,6 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "../styles/PaymentPage.css";
+import "../styles/fade.css";
 import {
   FaCreditCard,
   FaUser,
@@ -20,6 +21,28 @@ const PaymentPage = () => {
   const location = useLocation();
   const { amount, userId, type } = location.state || {};
   const [unmaskedCardNumber, setUnmaskedCardNumber] = useState("");
+  const [fadeClass, setFadeClass] = useState("");
+  const [showPage, setShowPage] = useState(false);
+
+  useEffect(() => {
+    // Show SweetAlert2 modal
+    Swal.fire({
+      title: "Redirecting to payment page...",
+      text: "Please wait a moment",
+      icon: "info",
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      timer: 2500,
+      didClose: () => {
+        setShowPage(true); // Modal close hone ke baad content dikhana
+      },
+    });
+  }, []);
+
+  useEffect(() => {
+    // Component mount hote hi fade-in class lagao
+    setFadeClass("fade-in");
+  }, []);
 
   const [form, setForm] = useState({
     cardNumber: "",
@@ -39,11 +62,7 @@ const PaymentPage = () => {
       axios
         .get(`http://localhost:8080/api/payment/cards/${userId}`)
         .then((response) => {
-          const formattedCards = response.data.map((card) => ({
-            ...card,
-            cardNumber: card.cardNumber.replace(/\d(?=\d{4})/g, "*"),
-          }));
-          setSavedCards(formattedCards);
+          setSavedCards(response.data);
         })
         .catch((error) => {
           console.error("Error fetching saved cards:", error);
@@ -89,10 +108,24 @@ const PaymentPage = () => {
 
   const maskCardNumber = (number) => {
     if (!number) return "";
-    return number.replace(/\d(?=\d{4})/g, "•");
+    return number.replace(/\d(?=\d{4})/g, "*");
   };
 
   const handleSelectCard = (card) => {
+    if (
+      card === null ||
+      !savedCards.some((savedCard) => savedCard.id === card.id)
+    ) {
+      setSelectedCard(null);
+      setForm({
+        cardNumber: "",
+        expiry: "",
+        cvv: "",
+        cardHolder: "",
+      });
+      setCardType("");
+      return;
+    }
     setSelectedCard(card);
 
     // Update the form fields with selected card
@@ -195,6 +228,15 @@ const PaymentPage = () => {
             style={{ height: "32px" }}
           />
         );
+      case "Discover":
+        return (
+          <img
+            src="https://img.icons8.com/color/24/000000/discover.png"
+            alt="Discover"
+            className="card-brand-icon"
+            style={{ height: "32px" }}
+          />
+        );
       default:
         return (
           <FaCreditCard className="card-brand-icon text-muted" size={24} />
@@ -202,229 +244,293 @@ const PaymentPage = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/payment/cards/${userId}`
+      );
+      setSavedCards(response.data); // Update the state with the new data
+      setTimeout(() => {
+        setLoading(false); // Set loading to false after 0.5 seconds
+      }, 500);
+    } catch (error) {
+      console.error("Error refreshing cards:", error);
+      Swal.fire("Error", "Failed to refresh payment details", "error");
+    }
+  };
+
   return (
-    <div className="payment-container">
-      <div className="container">
-        <div
-          className="row justify-content-center"
-          style={{ maxWidth: "100%" }}
-        >
-          <div className="col-lg-10">
-            <div className="payment-card">
-              <div className="payment-header">
-                <h2 className="payment-title">
-                  <FaCreditCard className="me-2" />
-                  Secure Payment
-                </h2>
-              </div>
+    <div className={`payment-page-container ${showPage ? "fade-in" : ""}`}>
+      {showPage && (
+        <div className={`payment-page-container ${fadeClass}`}>
+          <div className="payment-container">
+            <div className="container">
+              <div
+                className="row justify-content-center"
+                style={{ maxWidth: "100%" }}
+              >
+                <div className="col-lg-10">
+                  <div className="payment-card">
+                    <div className="payment-header">
+                      <h2 className="payment-title">
+                        <FaCreditCard className="me-2" />
+                        Secure Payment
+                      </h2>
+                    </div>
 
-              <div className="payment-body">
-                <div className="row d-flex flex-wrap">
-                  {/* Payment Section */}
-                  <div className="col-md-6 payment-section">
-                    <div className="payment-form-container">
-                      <h3 className="section-title">
-                        <span className="step-number">1</span>
-                        Payment Details
-                      </h3>
+                    <div className="payment-body">
+                      <div className="row d-flex flex-wrap">
+                        {/* Payment Section */}
+                        <div className="col-md-6 payment-section">
+                          <div className="payment-form-container">
+                            <h3 className="section-title">
+                              <span className="step-number">1</span>
+                              Payment Details
+                            </h3>
 
-                      <div className="card-brand-display">
-                        {renderCardIcon()}
-                        {cardType && (
-                          <span className="card-type-label">{cardType}</span>
-                        )}
-                      </div>
+                            {/* Refresh Button */}
+                            <button
+                              className="btn btn-primary"
+                              onClick={handleRefresh}
+                              disabled={loading}
+                            >
+                              {loading ? "Refreshing..." : "Refresh Cards"}
+                            </button>
 
-                      {savedCards.length > 0 && (
-                        <div className="mb-4">
-                          <label className="form-label small text-uppercase">
-                            Use Saved Card
-                          </label>
-                          <select
-                            className="form-select saved-card-select"
-                            onChange={(e) =>
-                              handleSelectCard(JSON.parse(e.target.value))
-                            }
-                            value={
-                              selectedCard ? JSON.stringify(selectedCard) : ""
-                            }
-                          >
-                            <option value="">Select a saved card</option>
-                            {savedCards.map((card) => (
-                              <option
-                                key={card.id}
-                                value={JSON.stringify(card)}
+                            {/* Spinner */}
+                            {loading && (
+                              <div className="spinner-container">
+                                <div
+                                  className="spinner-border spinner-border-custom"
+                                  role="status"
+                                >
+                                  <span className="sr-only"></span>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="card-brand-display">
+                              {renderCardIcon()}
+                              {cardType && (
+                                <span className="card-type-label">
+                                  {cardType.charAt(0).toUpperCase() +
+                                    cardType.slice(1)}
+                                </span>
+                              )}
+                            </div>
+
+                            {savedCards.length > 0 && (
+                              <div className="mb-4">
+                                <label className="form-label small text-uppercase">
+                                  Use Saved Card
+                                </label>
+                                <select
+                                  className="form-select saved-card-select"
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    // If value is empty, clear the selected card
+                                    handleSelectCard(
+                                      value ? JSON.parse(value) : null
+                                    );
+                                  }}
+                                  value={
+                                    selectedCard
+                                      ? JSON.stringify(selectedCard)
+                                      : ""
+                                  }
+                                >
+                                  <option value="">Select a saved card</option>
+                                  {savedCards.map((card) => (
+                                    <option
+                                      key={card.id}
+                                      value={JSON.stringify(card)}
+                                    >
+                                      **** **** **** {card.cardNumber.slice(-4)}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            <form
+                              onSubmit={handleSubmit}
+                              className="payment-form"
+                            >
+                              <div className="form-group">
+                                <label className="form-label small text-uppercase">
+                                  Cardholder Name
+                                </label>
+                                <div className="input-with-icon">
+                                  <FaUser className="input-icon" />
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    name="cardHolder"
+                                    placeholder="Full name as on card"
+                                    value={form.cardHolder}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={selectedCard}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="form-group">
+                                <label className="form-label small text-uppercase">
+                                  Card Number
+                                </label>
+                                <div className="input-with-icon">
+                                  <FaCreditCard className="input-icon" />
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    name="cardNumber"
+                                    placeholder="1234 5678 9012 3456"
+                                    value={form.cardNumber}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={selectedCard}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="row">
+                                <div className="col-md-6">
+                                  <div className="form-group">
+                                    <label className="form-label small text-uppercase">
+                                      Expiry Date
+                                    </label>
+                                    <div className="input-with-icon">
+                                      <FaCalendarAlt className="input-icon" />
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        name="expiry"
+                                        placeholder="MM/YY"
+                                        value={form.expiry}
+                                        onChange={handleChange}
+                                        required
+                                        disabled={selectedCard}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="col-md-6">
+                                  <div className="form-group">
+                                    <label className="form-label small text-uppercase">
+                                      CVV
+                                    </label>
+                                    <div className="input-with-icon">
+                                      <FaLock className="input-icon" />
+                                      <input
+                                        type="password"
+                                        className="form-control"
+                                        name="cvv"
+                                        placeholder="•••"
+                                        value={form.cvv}
+                                        onChange={handleChange}
+                                        required
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <button
+                                type="submit"
+                                className="btn btn-primary payment-button"
+                                disabled={loading}
                               >
-                                {card.cardType} •••• •••• ••••{" "}
-                                {card.cardNumber.slice(-4)}
-                              </option>
-                            ))}
-                          </select>
+                                {loading ? (
+                                  <>
+                                    <span
+                                      className="spinner-border spinner-border-sm me-2"
+                                      role="status"
+                                      aria-hidden="true"
+                                    ></span>
+                                    Processing Payment
+                                  </>
+                                ) : (
+                                  `Pay ₹${amount}`
+                                )}
+                              </button>
+                            </form>
+                          </div>
                         </div>
-                      )}
 
-                      <form onSubmit={handleSubmit} className="payment-form">
-                        <div className="form-group">
-                          <label className="form-label small text-uppercase">
-                            Cardholder Name
-                          </label>
-                          <div className="input-with-icon">
-                            <FaUser className="input-icon" />
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="cardHolder"
-                              placeholder="Full name as on card"
-                              value={form.cardHolder}
-                              onChange={handleChange}
-                              required
-                              disabled={selectedCard}
+                        {/* Card Management Section */}
+                        <div className="col-md-6 card-management-section">
+                          <div className="card-management-header">
+                            <h3 className="section-title">
+                              <span className="step-number">2</span>
+                              Your Payment Methods
+                            </h3>
+                            <button
+                              className={`btn btn-sm ${
+                                showAddCardForm
+                                  ? "btn-outline-danger"
+                                  : "btn-outline-primary"
+                              } toggle-card-form-btn`}
+                              onClick={() =>
+                                setShowAddCardForm(!showAddCardForm)
+                              }
+                            >
+                              {showAddCardForm ? (
+                                <>
+                                  <FaTimes className="me-1" />
+                                  Cancel
+                                </>
+                              ) : (
+                                <>
+                                  <FaPlus className="me-1" />
+                                  Add Card
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          {showAddCardForm ? (
+                            <AddCardForm
+                              setSavedCards={setSavedCards}
+                              userId={userId}
+                              onSuccess={() => setShowAddCardForm(false)}
                             />
-                          </div>
-                        </div>
-
-                        <div className="form-group">
-                          <label className="form-label small text-uppercase">
-                            Card Number
-                          </label>
-                          <div className="input-with-icon">
-                            <FaCreditCard className="input-icon" />
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="cardNumber"
-                              placeholder="1234 5678 9012 3456"
-                              value={form.cardNumber}
-                              onChange={handleChange}
-                              required
-                              disabled={selectedCard}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="row">
-                          <div className="col-md-6">
-                            <div className="form-group">
-                              <label className="form-label small text-uppercase">
-                                Expiry Date
-                              </label>
-                              <div className="input-with-icon">
-                                <FaCalendarAlt className="input-icon" />
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  name="expiry"
-                                  placeholder="MM/YY"
-                                  value={form.expiry}
-                                  onChange={handleChange}
-                                  required
-                                  disabled={selectedCard}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-md-6">
-                            <div className="form-group">
-                              <label className="form-label small text-uppercase">
-                                CVV
-                              </label>
-                              <div className="input-with-icon">
-                                <FaLock className="input-icon" />
-                                <input
-                                  type="password"
-                                  className="form-control"
-                                  name="cvv"
-                                  placeholder="•••"
-                                  value={form.cvv}
-                                  onChange={handleChange}
-                                  required
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <button
-                          type="submit"
-                          className="btn btn-primary payment-button"
-                          disabled={loading}
-                        >
-                          {loading ? (
-                            <>
-                              <span
-                                className="spinner-border spinner-border-sm me-2"
-                                role="status"
-                                aria-hidden="true"
-                              ></span>
-                              Processing Payment
-                            </>
                           ) : (
-                            `Pay ₹${amount}`
+                            <CardList
+                              cards={savedCards}
+                              userId={userId}
+                              setSavedCards={setSavedCards}
+                              selectedCard={selectedCard}
+                              setSelectedCard={setSelectedCard}
+                              setForm={setForm}
+                              setCardType={setCardType}
+                              onSelectCard={handleSelectCard}
+                            />
                           )}
-                        </button>
-                      </form>
-                    </div>
-                  </div>
 
-                  {/* Card Management Section */}
-                  <div className="col-md-6 card-management-section">
-                    <div className="card-management-header">
-                      <h3 className="section-title">
-                        <span className="step-number">2</span>
-                        Your Payment Methods
-                      </h3>
-                      <button
-                        className={`btn btn-sm ${
-                          showAddCardForm
-                            ? "btn-outline-danger"
-                            : "btn-outline-primary"
-                        } toggle-card-form-btn`}
-                        onClick={() => setShowAddCardForm(!showAddCardForm)}
-                      >
-                        {showAddCardForm ? (
-                          <>
-                            <FaTimes className="me-1" />
-                            Cancel
-                          </>
-                        ) : (
-                          <>
-                            <FaPlus className="me-1" />
-                            Add Card
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {showAddCardForm ? (
-                      <AddCardForm
-                        setSavedCards={setSavedCards}
-                        userId={userId}
-                        onSuccess={() => setShowAddCardForm(false)}
-                      />
-                    ) : (
-                      <CardList
-                        cards={savedCards}
-                        userId={userId}
-                        setSavedCards={setSavedCards}
-                        onSelectCard={handleSelectCard}
-                      />
-                    )}
-
-                    <div className="accepted-cards">
-                      <p className="small mb-2">We accept:</p>
-                      <div className="card-brands">
-                        <img
-                          src="https://img.icons8.com/color/30/000000/visa.png"
-                          alt="Visa"
-                        />
-                        <img
-                          src="https://img.icons8.com/color/30/000000/mastercard.png"
-                          alt="Mastercard"
-                        />
-                        <img
-                          src="https://img.icons8.com/color/30/000000/rupay.png"
-                          alt="RuPay"
-                        />
+                          <div className="accepted-cards">
+                            <p className="small mb-2">We accept:</p>
+                            <div className="card-brands">
+                              <img
+                                src="https://img.icons8.com/color/30/000000/visa.png"
+                                alt="Visa"
+                              />
+                              <img
+                                src="https://img.icons8.com/color/30/000000/mastercard.png"
+                                alt="Mastercard"
+                              />
+                              <img
+                                src="https://img.icons8.com/color/30/000000/rupay.png"
+                                alt="RuPay"
+                              />
+                              <img
+                                src="https://img.icons8.com/color/24/000000/discover.png"
+                                alt="Discover"
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -433,7 +539,7 @@ const PaymentPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
