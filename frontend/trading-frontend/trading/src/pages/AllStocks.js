@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import { Modal, Button, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -23,8 +22,10 @@ const AllStocks = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const stocksPerPage = 12; // Number of stocks per page
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const observer = useRef();
   const navigate = useNavigate();
 
   // Fetch user ID from local storage
@@ -33,6 +34,7 @@ const AllStocks = () => {
     ? JSON.parse(storedUser)?.id
     : localStorage.getItem("userId");
 
+  // Fetch watchlists
   useEffect(() => {
     if (userId) {
       axios
@@ -48,20 +50,65 @@ const AllStocks = () => {
     }
   }, [userId]);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/stocks")
-      .then((res) => {
-        console.log("Stocks API Response:", res.data);
-        setStocks(Array.isArray(res.data) ? res.data : []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching stocks:", err);
-        setStocks([]);
-        setLoading(false);
+  // Fetch stocks with search and pagination
+  const fetchStocks = useCallback(async (reset = false) => {
+    try {
+      if (reset) {
+        setLoading(true);
+        setPage(1);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const response = await axios.get("http://localhost:8080/api/stocks", {
+        params: {
+          search: searchTerm,
+          page: reset ? 1 : page,
+          limit: 20 // Adjust this number based on your API
+        }
       });
-  }, []);
+
+      const newStocks = Array.isArray(response.data) ? response.data : [];
+      
+      if (reset) {
+        setStocks(newStocks);
+        setHasMore(newStocks.length > 0);
+      } else {
+        setStocks(prevStocks => [...prevStocks, ...newStocks]);
+        setHasMore(newStocks.length > 0);
+      }
+    } catch (err) {
+      console.error("Error fetching stocks:", err);
+      toast.error("Failed to load stocks");
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [searchTerm, page]);
+
+  // Initial load and search term changes
+  useEffect(() => {
+    fetchStocks(true);
+  }, [searchTerm]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 1) {
+      fetchStocks();
+    }
+  }, [page]);
+
+  // Infinite scroll observer
+  const lastStockElementRef = useCallback(node => {
+    if (loadingMore) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loadingMore, hasMore]);
 
   // Open modal to add stock to a watchlist
   const openModal = (stock, e) => {
@@ -73,7 +120,7 @@ const AllStocks = () => {
   // Handle adding stock to a watchlist
   const addToWatchlist = () => {
     if (!selectedWatchlist) {
-      alert("Please select a watchlist!");
+      toast.warning("Please select a watchlist!");
       return;
     }
 
@@ -82,12 +129,12 @@ const AllStocks = () => {
         `http://localhost:8080/api/watchlists/${selectedWatchlist}/stocks/${selectedStock.symbol}`
       )
       .then(() => {
-        alert(`Added ${selectedStock.symbol} to the watchlist!`);
+        toast.success(`Added ${selectedStock.symbol} to the watchlist!`);
         setModalShow(false);
       })
       .catch((err) => {
         console.error("Error adding stock:", err);
-        alert("Failed to add stock.");
+        toast.error("Failed to add stock.");
       });
   };
 
@@ -131,23 +178,16 @@ const AllStocks = () => {
     return null;
   };
 
-  // Filter stocks based on search
-  const filteredStocks = stocks.filter(
-    (stock) =>
-      stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (stock.name &&
-        stock.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Debounced search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchStocks(true);
+    }, 500);
 
-  // Get stocks for the current page
-  const indexOfLastStock = currentPage * stocksPerPage;
-  const indexOfFirstStock = indexOfLastStock - stocksPerPage;
-  const currentStocks = filteredStocks.slice(
-    indexOfFirstStock,
-    indexOfLastStock
-  );
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
 
   if (loading) {
     return (
@@ -166,9 +206,6 @@ const AllStocks = () => {
               <BarChart className="text-primary me-3" size={28} />
               <h1 className="text-primary m-0">Market Overview</h1>
             </div>
-            {/* <p className="mb-0">
-              Last updated: {new Date().toLocaleString()}
-            </p> */}
           </div>
           <div className="mt-3 mt-md-0 w-100 w-md-auto">
             <div className="input-group">
@@ -178,7 +215,7 @@ const AllStocks = () => {
               <input
                 type="text"
                 className="form-control bg-dark border-secondary text-light"
-                placeholder="Search stocks..."
+                placeholder="Search stocks by symbol or name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -248,8 +285,8 @@ const AllStocks = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentStocks.length > 0 ? (
-                    currentStocks.map((stock) => {
+                  {stocks.length > 0 ? (
+                    stocks.map((stock, index) => {
                       const percentChange =
                         stock.lowPrice && stock.highPrice
                           ? ((stock.highPrice - stock.lowPrice) /
@@ -257,111 +294,121 @@ const AllStocks = () => {
                             100
                           : 0;
 
-                      return (
-                        <tr
-                          key={stock.symbol}
-                          onClick={() =>
-                            navigate(`/dashboard?stock=${stock.symbol}`)
-                          }
-                          className="cursor-pointer"
-                        >
-                          <td>
-                            <div className="d-flex align-items-center justify-content-between">
-                              <strong>{stock.symbol}</strong>
-                            </div>
-                          </td>
-                          <td className="text-end">
-                            ₹{stock.closePrice?.toFixed(2)}
-                          </td>
-                          <td className="text-end">
-                            ₹{stock.lowPrice?.toFixed(2)}
-                          </td>
-                          <td className="text-end">
-                            ₹{stock.highPrice?.toFixed(2)}
-                          </td>
-                          <td className="text-end">
-                            <div
-                              className={`d-inline-block ${
-                                percentChange > 0
-                                  ? "text-success"
-                                  : "text-danger"
-                              }`}
-                            >
-                              {percentChange.toFixed(2)}%
-                            </div>
-                          </td>
-                          <td className="text-end">
-                            <Button
-                              variant="outline-primary"
-                              onClick={(e) => openModal(stock, e)}
-                            >
-                              Add to Watchlist
-                            </Button>
-                          </td>
-                        </tr>
-                      );
+                      if (stocks.length === index + 1) {
+                        return (
+                          <tr
+                            ref={lastStockElementRef}
+                            key={stock.symbol}
+                            onClick={() =>
+                              navigate(`/dashboard?stock=${stock.symbol}`)
+                            }
+                            className="cursor-pointer"
+                          >
+                            <td>
+                              <div className="d-flex align-items-center justify-content-between">
+                                <strong>{stock.symbol}</strong>
+                              </div>
+                            </td>
+                            <td className="text-end">
+                              ₹{stock.closePrice?.toFixed(2)}
+                            </td>
+                            <td className="text-end">
+                              ₹{stock.lowPrice?.toFixed(2)}
+                            </td>
+                            <td className="text-end">
+                              ₹{stock.highPrice?.toFixed(2)}
+                            </td>
+                            <td className="text-end">
+                              <div
+                                className={`d-inline-block ${
+                                  percentChange > 0
+                                    ? "text-success"
+                                    : "text-danger"
+                                }`}
+                              >
+                                {percentChange.toFixed(2)}%
+                              </div>
+                            </td>
+                            <td className="text-end">
+                              <Button
+                                variant="outline-primary"
+                                onClick={(e) => openModal(stock, e)}
+                              >
+                                Add to Watchlist
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      } else {
+                        return (
+                          <tr
+                            key={stock.symbol}
+                            onClick={() =>
+                              navigate(`/dashboard?stock=${stock.symbol}`)
+                            }
+                            className="cursor-pointer"
+                          >
+                            <td>
+                              <div className="d-flex align-items-center justify-content-between">
+                                <strong>{stock.symbol}</strong>
+                              </div>
+                            </td>
+                            <td className="text-end">
+                              ₹{stock.closePrice?.toFixed(2)}
+                            </td>
+                            <td className="text-end">
+                              ₹{stock.lowPrice?.toFixed(2)}
+                            </td>
+                            <td className="text-end">
+                              ₹{stock.highPrice?.toFixed(2)}
+                            </td>
+                            <td className="text-end">
+                              <div
+                                className={`d-inline-block ${
+                                  percentChange > 0
+                                    ? "text-success"
+                                    : "text-danger"
+                                }`}
+                              >
+                                {percentChange.toFixed(2)}%
+                              </div>
+                            </td>
+                            <td className="text-end">
+                              <Button
+                                variant="outline-primary"
+                                onClick={(e) => openModal(stock, e)}
+                              >
+                                Add to Watchlist
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      }
                     })
                   ) : (
                     <tr>
-                      <td colSpan="6" className="text-center">
-                        No stocks available.
+                      <td colSpan="6" className="text-center py-4">
+                        {searchTerm ? (
+                          <>
+                            <ExclamationCircle size={24} className="me-2" />
+                            No stocks found matching "{searchTerm}"
+                          </>
+                        ) : (
+                          "No stocks available."
+                        )}
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
+              {loadingMore && (
+                <div className="text-center py-3">
+                  <Spinner animation="border" variant="primary" size="sm" />
+                  <span className="ms-2">Loading more stocks...</span>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-
-        {/* Pagination */}
-        <div className="d-flex justify-content-center mt-4">
-          <nav aria-label="Page navigation">
-            <ul className="pagination">
-              <li
-                className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => paginate(currentPage - 1)}
-                >
-                  Previous
-                </button>
-              </li>
-              {[...Array(Math.ceil(filteredStocks.length / stocksPerPage))].map(
-                (_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${
-                      currentPage === index + 1 ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => paginate(index + 1)}
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                )
-              )}
-              <li
-                className={`page-item ${
-                  currentPage ===
-                  Math.ceil(filteredStocks.length / stocksPerPage)
-                    ? "disabled"
-                    : ""
-                }`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => paginate(currentPage + 1)}
-                >
-                  Next
-                </button>
-              </li>
-            </ul>
-          </nav>
         </div>
 
         {/* Modal for Watchlist */}

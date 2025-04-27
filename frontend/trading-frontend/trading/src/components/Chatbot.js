@@ -19,8 +19,10 @@ const Chatbot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
+  const chatWindowRef = useRef(null);
 
   const suggestedQuestions = [
     "What services do you offer?",
@@ -114,8 +116,20 @@ const Chatbot = () => {
   };
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
+    if (isAnimating) return;
+    
+    if (isOpen) {
+      // Closing animation
+      setIsAnimating(true);
+      chatWindowRef.current.classList.add('closing');
+      setTimeout(() => {
+        setIsOpen(false);
+        setIsAnimating(false);
+        chatWindowRef.current.classList.remove('closing');
+      }, 300);
+    } else {
+      // Opening animation
+      setIsOpen(true);
       setIsMinimized(false);
     }
   };
@@ -127,16 +141,26 @@ const Chatbot = () => {
     }
   };
 
+  const toggleMinimize = () => {
+    setIsMinimized(!isMinimized);
+  };
+
   return (
     <div className={`chatbot-container ${isOpen ? "open" : ""}`}>
       {/* Floating Button */}
-      <button className="floating-chat-btn" onClick={toggleChat}>
+      <button 
+        className={`floating-chat-btn ${isOpen ? 'pulse' : ''}`} 
+        onClick={toggleChat}
+      >
         {isOpen ? <FiX size={24} /> : <IoMdChatbubbles size={24} />}
       </button>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={`chat-window ${isMinimized ? "minimized" : ""}`}>
+        <div 
+          className={`chat-window ${isMinimized ? "minimized" : ""}`}
+          ref={chatWindowRef}
+        >
           <div className="chat-header">
             <div className="header-left">
               <RiRobot2Line className="bot-icon" />
@@ -145,7 +169,7 @@ const Chatbot = () => {
             <div className="header-actions">
               <button
                 className="icon-btn minimize-btn"
-                onClick={() => setIsMinimized(!isMinimized)}
+                onClick={toggleMinimize}
               >
                 <FiChevronUp
                   className={`minimize-icon ${isMinimized ? "flipped" : ""}`}
