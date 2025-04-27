@@ -73,6 +73,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/payment").permitAll()
                                                 .requestMatchers("/api/payment/process").permitAll()
                                                 .requestMatchers("/api/payment/addCard").permitAll()
+                                                .requestMatchers("/api/trades/buy").permitAll()
                                                 .requestMatchers(HttpMethod.DELETE, "/api/payment/deleteCard/*").permitAll() // ✅
 
 
