@@ -11,6 +11,7 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public class PaymentService {
 //
 //        return new PaymentResponse(transactionId, status, isSuccess ? "Payment successful" : "Payment failed");
 //    }
-
+    @Transactional
     public PaymentResponse processCardPayment(PaymentRequest request) {
         String transactionId = UUID.randomUUID().toString();
 
