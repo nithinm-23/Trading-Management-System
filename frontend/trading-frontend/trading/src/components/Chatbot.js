@@ -117,15 +117,15 @@ const Chatbot = () => {
 
   const toggleChat = () => {
     if (isAnimating) return;
-    
+
     if (isOpen) {
       // Closing animation
       setIsAnimating(true);
-      chatWindowRef.current.classList.add('closing');
+      chatWindowRef.current.classList.add("closing");
       setTimeout(() => {
         setIsOpen(false);
         setIsAnimating(false);
-        chatWindowRef.current.classList.remove('closing');
+        chatWindowRef.current.classList.remove("closing");
       }, 300);
     } else {
       // Opening animation
@@ -148,8 +148,8 @@ const Chatbot = () => {
   return (
     <div className={`chatbot-container ${isOpen ? "open" : ""}`}>
       {/* Floating Button */}
-      <button 
-        className={`floating-chat-btn ${isOpen ? 'pulse' : ''}`} 
+      <button
+        className={`floating-chat-btn ${isOpen ? "pulse" : ""}`}
         onClick={toggleChat}
       >
         {isOpen ? <FiX size={24} /> : <IoMdChatbubbles size={24} />}
@@ -157,7 +157,7 @@ const Chatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div 
+        <div
           className={`chat-window ${isMinimized ? "minimized" : ""}`}
           ref={chatWindowRef}
         >

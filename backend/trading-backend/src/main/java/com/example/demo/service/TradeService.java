@@ -33,6 +33,35 @@ public class TradeService {
         this.stockService = stockService;
     }
 
+//    @Transactional
+//    public Trade executeTrade(Long userId, String symbol, TradeType type,
+//                              int quantity, double price) {
+//        try {
+//            // Validate inputs
+//            validateTradeInputs(userId, symbol, quantity, price);
+//
+//            // Verify price matches current market price
+//            double currentPrice = stockService.getCurrentPrice(symbol);
+//            validatePriceMatch(price, currentPrice, symbol);
+//
+//            // Create and save trade record
+//            Trade trade = createTradeRecord(userId, symbol, type, quantity, price);
+//            Trade savedTrade = tradeRepository.save(trade);
+//            logger.info("Trade recorded: {}", savedTrade.getId());
+//
+//            // Execute portfolio logic
+//            executePortfolioUpdate(userId, symbol, type, quantity, price);
+//
+//            // Update user funds
+//            updateUserFunds(userId, type, quantity, price);
+//
+//            return savedTrade;
+//        } catch (DataIntegrityViolationException e) {
+//            logger.error("Database error during trade execution", e);
+//            throw new TradeExecutionException("Failed to save trade record", e);
+//        }
+//    }
+
     @Transactional
     public Trade executeTrade(Long userId, String symbol, TradeType type,
                               int quantity, double price) {
@@ -44,13 +73,15 @@ public class TradeService {
             double currentPrice = stockService.getCurrentPrice(symbol);
             validatePriceMatch(price, currentPrice, symbol);
 
-            // Create and save trade record
+            // Create trade record
             Trade trade = createTradeRecord(userId, symbol, type, quantity, price);
-            Trade savedTrade = tradeRepository.save(trade);
-            logger.info("Trade recorded: {}", savedTrade.getId());
 
-            // Execute portfolio logic
+            // Execute portfolio logic first (may throw exception)
             executePortfolioUpdate(userId, symbol, type, quantity, price);
+
+            // Save trade record only after successful portfolio update
+            Trade savedTrade = tradeRepository.save(trade);
+            logger.info("Trade recorded for user {}: {}", userId, savedTrade.getId());
 
             // Update user funds
             updateUserFunds(userId, type, quantity, price);

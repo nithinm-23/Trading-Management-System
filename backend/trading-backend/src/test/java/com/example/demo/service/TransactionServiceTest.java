@@ -11,7 +11,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,6 +51,7 @@ class TransactionServiceTest {
         assertEquals(amount, result.getAmount());
         assertEquals(type, result.getType());
         assertNotNull(result.getTimestamp());
+        assertTrue(ChronoUnit.SECONDS.between(LocalDateTime.now(), result.getTimestamp()) <= 1); // timestamp reasonable
 
         verify(transactionRepository, times(1)).save(any(Transaction.class));
     }
@@ -56,27 +59,39 @@ class TransactionServiceTest {
     @Test
     void recordTransaction_ShouldHandleNullInputs() {
         // Test null userId
-        assertThrows(IllegalArgumentException.class, () ->
-                transactionService.recordTransaction(null, amount, type));
+        Exception e1 = assertThrows(IllegalArgumentException.class, () -> transactionService.recordTransaction(null, amount, type));
+        assertEquals("User ID cannot be null.", e1.getMessage());
 
         // Test null amount
-        assertThrows(IllegalArgumentException.class, () ->
-                transactionService.recordTransaction(userId, null, type));
+        Exception e2 = assertThrows(IllegalArgumentException.class, () -> transactionService.recordTransaction(userId, null, type));
+        assertEquals("Amount cannot be null.", e2.getMessage());
 
         // Test null type
-        assertThrows(IllegalArgumentException.class, () ->
-                transactionService.recordTransaction(userId, amount, null));
+        Exception e3 = assertThrows(IllegalArgumentException.class, () -> transactionService.recordTransaction(userId, amount, null));
+        assertEquals("Transaction type cannot be null.", e3.getMessage());
     }
 
     @Test
     void recordTransaction_ShouldValidateAmount() {
         // Test zero amount
-        assertThrows(IllegalArgumentException.class, () ->
-                transactionService.recordTransaction(userId, 0.0, type));
+        Exception e1 = assertThrows(IllegalArgumentException.class, () -> transactionService.recordTransaction(userId, 0.0, type));
+        assertEquals("Amount must be greater than 0.", e1.getMessage());
 
         // Test negative amount
-        assertThrows(IllegalArgumentException.class, () ->
-                transactionService.recordTransaction(userId, -100.0, type));
+        Exception e2 = assertThrows(IllegalArgumentException.class, () -> transactionService.recordTransaction(userId, -500.0, type));
+        assertEquals("Amount must be greater than 0.", e2.getMessage());
+    }
+
+    @Test
+    void recordTransaction_ShouldHandleRepositoryException() {
+        when(transactionRepository.save(any(Transaction.class))).thenThrow(new RuntimeException("Database error"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                transactionService.recordTransaction(userId, amount, type)
+        );
+
+        assertEquals("Database error", exception.getMessage());
+        verify(transactionRepository, times(1)).save(any(Transaction.class));
     }
 
     @Test
@@ -88,37 +103,52 @@ class TransactionServiceTest {
         Transaction t2 = new Transaction(userId, 200.0, TransactionType.WITHDRAW);
         t2.setTimestamp(LocalDateTime.now());
 
-        List<Transaction> mockTransactions = Arrays.asList(t2, t1); // Already in descending order
+        List<Transaction> mockTransactions = Arrays.asList(t2, t1); // Descending order
 
-        when(transactionRepository.findByUserIdOrderByTimestampDesc(userId))
-                .thenReturn(mockTransactions);
+        when(transactionRepository.findByUserIdOrderByTimestampDesc(userId)).thenReturn(mockTransactions);
 
         // Act
         List<Transaction> result = transactionService.getTransactions(userId);
 
         // Assert
         assertEquals(2, result.size());
-        assertEquals(t2, result.get(0)); // Newest first
-        assertEquals(t1, result.get(1)); // Older second
+        assertSame(t2, result.get(0));
+        assertSame(t1, result.get(1));
+
         verify(transactionRepository, times(1)).findByUserIdOrderByTimestampDesc(userId);
     }
 
     @Test
     void getTransactions_ShouldHandleEmptyResult() {
-        when(transactionRepository.findByUserIdOrderByTimestampDesc(userId))
-                .thenReturn(List.of());
+        when(transactionRepository.findByUserIdOrderByTimestampDesc(userId)).thenReturn(Collections.emptyList());
 
         List<Transaction> result = transactionService.getTransactions(userId);
 
+        assertNotNull(result);
         assertTrue(result.isEmpty());
+
+        verify(transactionRepository, times(1)).findByUserIdOrderByTimestampDesc(userId);
     }
 
     @Test
     void getTransactions_ShouldValidateUserId() {
-        assertThrows(IllegalArgumentException.class, () ->
-                transactionService.getTransactions(null));
+        Exception e1 = assertThrows(IllegalArgumentException.class, () -> transactionService.getTransactions(null));
+        assertEquals("User ID must be valid.", e1.getMessage());
 
-        assertThrows(IllegalArgumentException.class, () ->
-                transactionService.getTransactions(-1L));
+        Exception e2 = assertThrows(IllegalArgumentException.class, () -> transactionService.getTransactions(-10L));
+        assertEquals("User ID must be valid.", e2.getMessage());
+    }
+
+    @Test
+    void getTransactions_ShouldHandleRepositoryException() {
+        when(transactionRepository.findByUserIdOrderByTimestampDesc(userId))
+                .thenThrow(new RuntimeException("Database down"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                transactionService.getTransactions(userId)
+        );
+
+        assertEquals("Database down", exception.getMessage());
+        verify(transactionRepository, times(1)).findByUserIdOrderByTimestampDesc(userId);
     }
 }

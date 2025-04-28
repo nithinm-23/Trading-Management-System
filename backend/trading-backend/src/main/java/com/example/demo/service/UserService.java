@@ -58,10 +58,6 @@ public class UserService {
 
     public User loginUser(String email, String password) {
 
-        System.out.println("========= LOGIN ATTEMPT =========");
-        System.out.println("Email: " + email);
-        System.out.println("Raw input password: [" + password + "]");
-        System.out.println("Password length: " + password.length());
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
@@ -70,25 +66,14 @@ public class UserService {
             throw new IllegalArgumentException("Please login with Google");
         }
 
-        System.out.println("Raw password before encoding: " + user.getPassword());
-        user.setPassword(user.getPassword());
-        System.out.println("Encoded password: " + user.getPassword());
-
         // Handle users without passwords
         if (user.getPassword() == null) {
             throw new IllegalArgumentException("No password set for this account");
         }
 
-        System.out.println("Entered Password: " + password);
-        System.out.println("Stored Hashed Password: " + user.getPassword());
-        System.out.println("Password Match: " + passwordEncoder.matches(password, user.getPassword()));
-
-
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid password!");
         }
-
-        System.out.println("========= LOGIN SUCCESSFUL =========");
 
         return user;
     }
@@ -125,13 +110,6 @@ public class UserService {
             return userRepository.save(existingUser);
         }).orElseThrow(() -> new IllegalArgumentException("User not found!"));
     }
-
-//    public void deleteUser(Long id) {
-//        if (!userRepository.existsById(id)) {
-//            throw new IllegalArgumentException("User not found!");
-//        }
-//        userRepository.deleteById(id);
-//    }
 
     public User addBalance(Long userId, Double amount) {
         if (amount == null || amount <= 0) {
@@ -253,34 +231,6 @@ public class UserService {
                 .getBalance();
     }
 
-//    private final String googleClientId = "366788596555-tkpo870btmcs2ktdehm172s3fppu5m4p.apps.googleusercontent.com";
-
-//    private String verifyGoogleToken(String idToken) {
-//        try {
-//            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-//                    new NetHttpTransport(),
-//                    JacksonFactory.getDefaultInstance())
-//                    .setAudience(Collections.singletonList(googleClientId))
-//                    .build();
-//
-//            GoogleIdToken idTokenObj = verifier.verify(idToken);
-//            if (idTokenObj != null) {
-//                GoogleIdToken.Payload payload = idTokenObj.getPayload();
-//
-//                // Verify token expiration
-//                long now = System.currentTimeMillis() / 1000;
-//                if (payload.getExpirationTimeSeconds() < now) {
-//                    throw new RuntimeException("Token expired");
-//                }
-//
-//                return payload.getEmail();
-//            }
-//            throw new RuntimeException("Invalid Google token");
-//        } catch (Exception e) {
-//            throw new RuntimeException("Google token verification failed: " + e.getMessage());
-//        }
-//    }
-
     @Transactional
     public User processGoogleUser(String idToken, String name) {
         try {
@@ -315,14 +265,6 @@ public class UserService {
             if (!"google".equals(user.getProvider())) {
                 user.setProvider("google");
             }
-
-            // Check if profile is complete
-//            boolean profileCompleted = user.getDob() != null &&
-//                    user.getGender() != null &&
-//                    user.getMobileNumber() != null;
-//            user.setProfileCompleted(profileCompleted);
-
-            logger.info("Processed Google user with ID: {}", user.getId());
             return userRepository.save(user);
 
         } catch (Exception e) {
