@@ -11,9 +11,35 @@ import {
   AlertCircle,
   TrendingUp,
   RefreshCw,
+  X,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Modal from "react-modal";
+
+// Custom modal styles
+const customModalStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    backgroundColor: "#1e293b",
+    border: "1px solid #334155",
+    borderRadius: "0.5rem",
+    padding: "0",
+    maxWidth: "500px",
+    width: "90%",
+    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
+    zIndex: 1001,
+  },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    zIndex: 1000,
+  },
+};
 
 const Holdings = () => {
   const navigate = useNavigate();
@@ -26,11 +52,17 @@ const Holdings = () => {
   const [simulationMode, setSimulationMode] = useState(false);
   const [simulatedPrices, setSimulatedPrices] = useState({});
   const [simulatedValue, setSimulatedValue] = useState(0);
+  const [isPartialSellModalOpen, setIsPartialSellModalOpen] = useState(false);
+  const [selectedHolding, setSelectedHolding] = useState(null);
+  const [sellQuantity, setSellQuantity] = useState(1);
 
   const storedUser = localStorage.getItem("user");
   const userId = storedUser
     ? JSON.parse(storedUser)?.id
     : localStorage.getItem("userId");
+
+  // Set app element for accessibility (for react-modal)
+  Modal.setAppElement("#root");
 
   const fetchHoldings = async () => {
     if (!userId) {
@@ -91,51 +123,102 @@ const Holdings = () => {
   }, [userId, navigate, lastUpdate]);
 
   const handleSell = async (holdingId, symbol, quantity) => {
-    if (
-      window.confirm(
-        `Are you sure you want to sell ${quantity} shares of ${symbol}?`
-      )
-    ) {
-      try {
-        console.log(`Selling ${quantity} shares of ${symbol}...`);
+    try {
+      const sellResponse = await axios.post(
+        `http://localhost:8080/api/portfolio/sell/${userId}/${symbol}?quantity=${quantity}`
+      );
 
-        const sellResponse = await axios.post(
-          `http://localhost:8080/api/portfolio/sell/${userId}/${symbol}?quantity=${quantity}`
-        );
-        console.log("Sell Response:", sellResponse.data);
+      const balanceResponse = await axios.get(
+        `http://localhost:8080/api/users/${userId}`
+      );
 
-        const balanceResponse = await axios.get(
-          `http://localhost:8080/api/users/${userId}`
-        );
-        console.log("Updated Balance Response:", balanceResponse.data);
-
-        if (balanceResponse.data.balance !== undefined) {
-          setUserFunds(balanceResponse.data.balance);
-        } else {
-          console.error("Error: Balance not found in response");
-        }
-
-        setHoldings((prev) => {
-          const updated = prev
-            .map((item) =>
-              item.id === holdingId
-                ? { ...item, quantity: item.quantity - quantity }
-                : item
-            )
-            .filter((item) => item.quantity > 0);
-          return updated;
-        });
-
-        setLastUpdate(Date.now());
-        toast.success(`${quantity} shares of ${symbol} sold successfully!`);
-      } catch (error) {
-        console.error(
-          "Error selling stock:",
-          error.response ? error.response.data : error
-        );
-        toast.error("Failed to sell stock.");
+      if (balanceResponse.data.balance !== undefined) {
+        setUserFunds(balanceResponse.data.balance);
+      } else {
+        console.error("Error: Balance not found in response");
       }
+
+      setHoldings((prev) => {
+        const updated = prev
+          .map((item) =>
+            item.id === holdingId
+              ? { ...item, quantity: item.quantity - quantity }
+              : item
+          )
+          .filter((item) => item.quantity > 0);
+        return updated;
+      });
+
+      setLastUpdate(Date.now());
+      toast.success(`${quantity} shares of ${symbol} sold successfully!`);
+    } catch (error) {
+      console.error(
+        "Error selling stock:",
+        error.response ? error.response.data : error
+      );
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to sell stock. Please try again."
+      );
     }
+  };
+
+  const confirmSell = (holdingId, symbol, quantity) => {
+    toast.info(
+      <div>
+        <p>
+          Are you sure you want to sell {quantity} shares of {symbol}?
+        </p>
+        <div className="d-flex justify-content-end gap-2 mt-2">
+          <button
+            className="btn btn-sm btn-outline-light"
+            onClick={() => toast.dismiss()}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-sm btn-danger"
+            onClick={() => {
+              handleSell(holdingId, symbol, quantity);
+              toast.dismiss();
+            }}
+          >
+            Confirm Sell
+          </button>
+        </div>
+      </div>,
+      {
+        autoClose: false,
+        closeButton: false,
+        className: "bg-dark",
+      }
+    );
+  };
+
+  const openPartialSellModal = (holding) => {
+    setSelectedHolding(holding);
+    setSellQuantity(Math.floor(holding.quantity / 2));
+    setIsPartialSellModalOpen(true);
+  };
+
+  const closePartialSellModal = () => {
+    setIsPartialSellModalOpen(false);
+    setSelectedHolding(null);
+    setSellQuantity(1);
+  };
+
+  const executePartialSell = () => {
+    if (!selectedHolding) return;
+
+    if (sellQuantity <= 0 || sellQuantity > selectedHolding.quantity) {
+      toast.error(
+        `Please enter a valid quantity between 1 and ${selectedHolding.quantity}`
+      );
+      return;
+    }
+
+    confirmSell(selectedHolding.id, selectedHolding.symbol, sellQuantity);
+    closePartialSellModal();
   };
 
   const handlePriceChange = (symbol, value) => {
@@ -166,7 +249,137 @@ const Holdings = () => {
 
   return (
     <div className="container-fluid bg-dark text-light min-vh-100 py-4">
-      <ToastContainer />
+      <ToastContainer
+        position="top-center"
+        toastClassName="bg-dark text-light"
+        progressClassName="bg-primary"
+      />
+
+      {/* Enhanced Partial Sell Modal */}
+      <Modal
+        isOpen={isPartialSellModalOpen}
+        onRequestClose={closePartialSellModal}
+        contentLabel="Partial Sell Modal"
+        style={customModalStyles}
+        closeTimeoutMS={200}
+      >
+        <div className="modal-header border-bottom border-secondary p-3 d-flex justify-content-between align-items-center">
+          <h5 className="modal-title text-light m-0">
+            <span className="text-primary">Sell</span> Shares
+          </h5>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary p-1"
+            onClick={closePartialSellModal}
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <div className="modal-body p-4">
+          {selectedHolding && (
+            <>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h4 className="text-light mb-0">{selectedHolding.symbol}</h4>
+                  <small className="text-muted">Stock Symbol</small>
+                </div>
+                <div className="text-end">
+                  <div className="text-light fs-5">
+                    ₹
+                    {selectedHolding.currentPrice?.toFixed(2) ||
+                      selectedHolding.purchasePrice.toFixed(2)}
+                  </div>
+                  <small className="text-muted">Current Price</small>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="sellQuantity"
+                  className="form-label text-light mb-2"
+                >
+                  Quantity to Sell
+                </label>
+                <div className="input-group">
+                  <input
+                    type="number"
+                    className="form-control bg-gray-800 text-dark border-secondary"
+                    id="sellQuantity"
+                    min="1"
+                    max={selectedHolding.quantity}
+                    value={sellQuantity}
+                    onChange={(e) =>
+                      setSellQuantity(parseInt(e.target.value) || 0)
+                    }
+                  />
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    onClick={() => setSellQuantity(selectedHolding.quantity)}
+                  >
+                    Max
+                  </button>
+                </div>
+                <div className="d-flex justify-content-between mt-1">
+                  <small className="text-muted">
+                    Available: {selectedHolding.quantity}
+                  </small>
+                  <small className="text-muted">
+                    Max: {selectedHolding.quantity}
+                  </small>
+                </div>
+              </div>
+
+              <div className="card bg-gray-800 border-secondary mb-4">
+                <div className="card-body p-3">
+                  <div className="d-flex justify-content-between mb-2">
+                    <span className="text-dark">Quantity Selling:</span>
+                    <span className="text-dark">{sellQuantity}</span>
+                  </div>
+                  <div className="d-flex justify-content-between mb-2">
+                    <span className="text-dark">Price per Share:</span>
+                    <span className="text-dark">
+                      ₹
+                      {selectedHolding.currentPrice?.toFixed(2) ||
+                        selectedHolding.purchasePrice.toFixed(2)}
+                    </span>
+                  </div>
+                  <hr className="border-secondary my-2" />
+                  <div className="d-flex justify-content-between">
+                    <strong className="text-dark">Estimated Value:</strong>
+                    <strong className="text-warning">
+                      ₹
+                      {(
+                        (selectedHolding.currentPrice ||
+                          selectedHolding.purchasePrice) * sellQuantity
+                      ).toFixed(2)}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        <div className="modal-footer border-top border-secondary p-3 d-flex justify-content-between">
+          <button
+            type="button"
+            className="btn btn-outline-light"
+            onClick={closePartialSellModal}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={executePartialSell}
+            disabled={!sellQuantity || sellQuantity > selectedHolding?.quantity}
+          >
+            Confirm Sell
+          </button>
+        </div>
+      </Modal>
+
       <div className="container">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div className="d-flex align-items-center">
@@ -197,6 +410,7 @@ const Holdings = () => {
               onClick={() => {
                 fetchHoldings();
                 setLastUpdate(Date.now());
+                toast.info("Portfolio data refreshed");
               }}
             >
               <RefreshCw size={16} />
@@ -204,7 +418,7 @@ const Holdings = () => {
           </div>
         </div>
 
-        {/* Summary Cards - Always visible but updated in simulation mode */}
+        {/* Summary Cards */}
         <div className="row mb-4 g-4">
           <div className="col-md-4">
             <div className="card bg-dark border-secondary h-100">
@@ -323,7 +537,7 @@ const Holdings = () => {
           </div>
         </div>
 
-        {/* Simulation Controls - Only visible in simulation mode */}
+        {/* Simulation Controls */}
         {simulationMode ? (
           <>
             <div className="card bg-dark border-secondary mb-4">
@@ -342,6 +556,7 @@ const Holdings = () => {
                         item.currentPrice || item.purchasePrice;
                     });
                     setSimulatedPrices(resetPrices);
+                    toast.success("Prices reset to current values");
                   }}
                 >
                   Reset Prices
@@ -389,7 +604,7 @@ const Holdings = () => {
             </div>
           </>
         ) : (
-          /* Holdings Table - Only visible when not in simulation mode */
+          /* Holdings Table */
           <div className="card bg-dark border-secondary">
             <div
               className="card-header border-secondary"
@@ -477,7 +692,7 @@ const Holdings = () => {
                               <div className="d-flex gap-2">
                                 <button
                                   onClick={() =>
-                                    handleSell(
+                                    confirmSell(
                                       holding.id,
                                       holding.symbol,
                                       holding.quantity
@@ -489,29 +704,9 @@ const Holdings = () => {
                                 </button>
                                 {holding.quantity > 1 && (
                                   <button
-                                    onClick={() => {
-                                      const qty = prompt(
-                                        `Enter quantity to sell (max ${holding.quantity}):`,
-                                        Math.floor(holding.quantity / 2)
-                                      );
-                                      if (qty && !isNaN(qty)) {
-                                        const quantityToSell = parseInt(qty);
-                                        if (
-                                          quantityToSell > 0 &&
-                                          quantityToSell <= holding.quantity
-                                        ) {
-                                          handleSell(
-                                            holding.id,
-                                            holding.symbol,
-                                            quantityToSell
-                                          );
-                                        } else {
-                                          alert(
-                                            `Please enter a valid quantity between 1 and ${holding.quantity}`
-                                          );
-                                        }
-                                      }
-                                    }}
+                                    onClick={() =>
+                                      openPartialSellModal(holding)
+                                    }
                                     className="btn btn-sm btn-warning"
                                   >
                                     Partial Sell

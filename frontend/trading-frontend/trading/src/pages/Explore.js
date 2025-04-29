@@ -442,7 +442,7 @@ const Explore = () => {
         {/* Top Stocks */}
         <div className="mb-4">
           <div className="d-flex justify-content-between align-items-center mb-4 text-white">
-            <h2 className="fs-4 fw-bold m-0">Top Stocks</h2>
+            <h2 className="fs-4 fw-bold m-0">Stocks</h2>
             <button
               className="btn btn-outline-light btn-sm d-flex align-items-center gap-2"
               onClick={() => setTopStocks(getRandomStocks(allStocks, 3))}
