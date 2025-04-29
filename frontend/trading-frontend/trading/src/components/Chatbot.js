@@ -85,7 +85,7 @@ const Chatbot = () => {
 
       if (input.toLowerCase().includes("contact")) {
         reply =
-          "You can contact us at: 📞 +91-9876543210 (Me) or 📞 +91-8765432109 (My Teammate)";
+          "You can contact us at: 📞 +91-9977714235 (Nithin) or 📞 +91-9877987606 (Charu)";
       } else if (input.toLowerCase().includes("services")) {
         reply =
           "Our website offers:\n• Live Stock Tracking 📈\n• Portfolio Management 💼\n• Trade Execution 🚀\n• Market News 📰\n• Smart Alerts 🔔";
