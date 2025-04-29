@@ -16,7 +16,9 @@ import {
   Search,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const stocksList = [
   { symbol: "TCS.BSE", name: "Tata Consultancy Services", change: 1.2 },
@@ -248,15 +250,33 @@ const Dashboard = () => {
       );
       setBalance(balanceResponse.data.balance);
 
-      alert(
-        `${tradeType} order placed successfully at ₹${response.data.price} per share!`
+      toast.success(
+        `${tradeType} order placed successfully at ₹${response.data.price} per share!`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        }
       );
     } catch (error) {
       console.error("Trade error:", error);
-      alert(
+      toast.error(
         `Failed to place ${tradeType} order: ${
           error.response?.data?.message || error.message
-        }`
+        }`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        }
       );
     }
   };
@@ -338,6 +358,19 @@ const Dashboard = () => {
       className="d-flex vh-100 bg-dark text-light"
       style={{ overflow: "hidden" }}
     >
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
       {/* Left Panel - 25% */}
       <div
         className="w-25 bg-gray-900 border-end border-gray-700 d-flex flex-column"
@@ -360,35 +393,6 @@ const Dashboard = () => {
         </div>
 
         {/* Tabs */}
-        {/* <ul className="nav nav-tabs border-bottom border-gray-700">
-          <li className="nav-item w-50">
-            <button
-              className={`nav-link w-100 ${
-                activeTab === "all"
-                  ? "active bg-gray-900 text-primary border-primary"
-                  : "text-light"
-              }`}
-              onClick={() => setActiveTab("all")}
-            >
-              <List className="me-2" size={16} />
-              All Stocks
-            </button>
-          </li>
-          <li className="nav-item w-50">
-            <button
-              className={`nav-link w-100 ${
-                activeTab === "watchlist"
-                  ? "active bg-gray-900 text-primary border-primary"
-                  : "text-light"
-              }`}
-              onClick={() => setActiveTab("watchlist")}
-            >
-              <Eye className="me-2" size={16} />
-              Watchlists
-            </button>
-          </li>
-        </ul> */}
-
         <ul className="nav nav-tabs border-bottom border-gray-700">
           <li className="nav-item w-50">
             <button

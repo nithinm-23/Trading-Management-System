@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GoogleLogin, googleLogout } from "@react-oauth/google";
@@ -7,11 +7,13 @@ import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Navbar.css";
+import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [user, setUser] = React.useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Check auth status on component mount
   React.useEffect(() => {
@@ -69,6 +71,7 @@ const Navbar = () => {
     setIsLoggedIn(false);
     setUser(null);
     googleLogout();
+    setIsMobileMenuOpen(false);
 
     toast.success("Logged out successfully!", {
       position: "top-right",
@@ -85,119 +88,102 @@ const Navbar = () => {
     }, 2000);
   };
 
-  // Common button styles
-  const buttonStyle = {
-    border: "none",
-    background: "transparent",
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "4px",
-    transition: "all 0.3s ease",
-  };
-
-  const hoverStyle = {
-    background: "gray",
-    color: "black",
+  // Toggle mobile menu
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow">
       <div className="container-fluid">
         {/* Website Title */}
-        <a className="navbar-brand fw-bold" href="/">
+        <Link className="navbar-brand fw-bold" to="/">
           StockPro
-        </a>
+        </Link>
 
-        {/* Right Side Buttons */}
-        <div className="d-flex align-items-center">
-          {/* Navigation Links (Hover Effect Applied) */}
-          {isLoggedIn && (
-            <>
-              <Link
-                to="/dashboard"
-                className="btn text-white me-3"
-                style={buttonStyle}
-                onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-                onMouseLeave={(e) => Object.assign(e.target.style, buttonStyle)}
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/explore"
-                className="btn text-white me-3"
-                style={buttonStyle}
-                onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-                onMouseLeave={(e) => Object.assign(e.target.style, buttonStyle)}
-              >
-                Explore
-              </Link>
-              <Link
-                to="/holdings"
-                className="btn text-white me-3"
-                style={buttonStyle}
-                onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-                onMouseLeave={(e) => Object.assign(e.target.style, buttonStyle)}
-              >
-                Holdings
-              </Link>
-              <Link
-                to="/profile"
-                className="btn text-white me-3"
-                style={buttonStyle}
-                onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-                onMouseLeave={(e) => Object.assign(e.target.style, buttonStyle)}
-              >
-                Profile
-              </Link>
-              <Link
-                to="/about"
-                className="btn text-white me-3"
-                style={buttonStyle}
-                onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-                onMouseLeave={(e) => Object.assign(e.target.style, buttonStyle)}
-              >
-                About
-              </Link>
-            </>
-          )}
-
-          {/* Auth Buttons */}
-          {isLoggedIn ? (
-            <button
-              className="btn text-white"
-              style={{ ...buttonStyle, backgroundColor: "#dc3545" }}
-              onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-              onMouseLeave={(e) =>
-                Object.assign(e.target.style, {
-                  ...buttonStyle,
-                  backgroundColor: "#dc3545",
-                })
-              }
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
+        {/* Mobile Menu Button */}
+        <button
+          className="navbar-toggler"
+          type="button"
+          onClick={toggleMobileMenu}
+          aria-label="Toggle navigation"
+        >
+          {isMobileMenuOpen ? (
+            <X className="text-white" size={24} />
           ) : (
-            <div className="ms-3">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => {
-                  toast.error("Google login failed", {
-                    position: "top-right",
-                    autoClose: 2000,
-                  });
-                }}
-                theme="filled_blue"
-                size="medium"
-                shape="rectangular"
-                text="signin_with"
-              />
-            </div>
+            <Menu className="text-white" size={24} />
           )}
+        </button>
+
+        {/* Navigation Links */}
+        <div
+          className={`collapse navbar-collapse ${
+            isMobileMenuOpen ? "show" : ""
+          }`}
+          id="navbarSupportedContent"
+        >
+          <div className="d-flex flex-column flex-lg-row align-items-center w-100">
+            {/* Navigation Links */}
+            {isLoggedIn && (
+              <div className="d-flex flex-column flex-lg-row align-items-center ms-lg-auto me-lg-3">
+                <NavLink to="/dashboard" onClick={toggleMobileMenu}>
+                  Dashboard
+                </NavLink>
+                <NavLink to="/explore" onClick={toggleMobileMenu}>
+                  Explore
+                </NavLink>
+                <NavLink to="/holdings" onClick={toggleMobileMenu}>
+                  Holdings
+                </NavLink>
+                <NavLink to="/profile" onClick={toggleMobileMenu}>
+                  Profile
+                </NavLink>
+                <NavLink to="/about" onClick={toggleMobileMenu}>
+                  About
+                </NavLink>
+              </div>
+            )}
+
+            {/* Auth Buttons */}
+            <div className="mt-3 mt-lg-0">
+              {isLoggedIn ? (
+                <button className="btn btn-danger" onClick={handleLogout}>
+                  Logout
+                </button>
+              ) : (
+                <div className="google-auth-container">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => {
+                      toast.error("Google login failed", {
+                        position: "top-right",
+                        autoClose: 2000,
+                      });
+                    }}
+                    theme="filled_blue"
+                    size="medium"
+                    shape="rectangular"
+                    text="signin_with"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </nav>
   );
 };
+
+// Reusable NavLink component
+const NavLink = ({ to, children, onClick }) => (
+  <Link
+    to={to}
+    className="nav-link text-white px-3 py-2 py-lg-1 my-1 my-lg-0 rounded"
+    onClick={onClick}
+  >
+    {children}
+  </Link>
+);
 
 export default Navbar;

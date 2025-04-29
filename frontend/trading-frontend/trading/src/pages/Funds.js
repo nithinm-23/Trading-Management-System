@@ -20,7 +20,7 @@ const Funds = () => {
   const token = localStorage.getItem("authToken");
   // axios
   //   .get("http://localhost:8080/api/funds", {
-  //     headers: { Authorization: `Bearer ${token}` },
+  //     headers: { Authorization: Bearer ${token} },
   //   })
   //   .then((response) => console.log(response.data))
   //   .catch((error) => console.error("Funds API error:", error));

@@ -72,14 +72,14 @@ const SignUp = () => {
     if (!validateInputs()) return;
 
     const userData = {
-      name, // Added missing name field
+      name,
       email,
       password,
       confirmPassword,
       panNumber,
       mobileNumber,
       gender,
-      dob: new Date(dob).toISOString().split("T")[0], // Ensure proper date format
+      dob: new Date(dob).toISOString().split("T")[0],
     };
 
     console.log("Sending data:", userData);
@@ -100,7 +100,6 @@ const SignUp = () => {
         toast.success("User registered successfully!");
         navigate("/");
       } else {
-        // Improved error handling
         if (data.errors) {
           Object.values(data.errors).forEach((err) => toast.error(err));
         } else {
@@ -126,7 +125,6 @@ const SignUp = () => {
         <div className="right-section">
           <h3 className="text-center mb-4">Sign Up</h3>
           <form onSubmit={handleSubmit}>
-            {/* Added Name Field */}
             <div className="mb-3">
               <label className="form-label">Full Name</label>
               <input

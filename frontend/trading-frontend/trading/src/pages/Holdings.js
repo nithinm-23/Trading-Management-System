@@ -12,6 +12,8 @@ import {
   TrendingUp,
   RefreshCw,
 } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Holdings = () => {
   const navigate = useNavigate();
@@ -25,13 +27,11 @@ const Holdings = () => {
   const [simulatedPrices, setSimulatedPrices] = useState({});
   const [simulatedValue, setSimulatedValue] = useState(0);
 
-  // Get user ID from local storage
   const storedUser = localStorage.getItem("user");
   const userId = storedUser
     ? JSON.parse(storedUser)?.id
     : localStorage.getItem("userId");
 
-  // Fetch holdings data
   const fetchHoldings = async () => {
     if (!userId) {
       navigate("/login");
@@ -44,7 +44,6 @@ const Holdings = () => {
       );
       setHoldings(response.data);
 
-      // Calculate totals
       const investmentTotal = response.data.reduce(
         (sum, item) => sum + item.purchasePrice * item.quantity,
         0
@@ -58,7 +57,6 @@ const Holdings = () => {
       setCurrentValue(currentTotal);
       setLoading(false);
 
-      // Initialize simulated prices with current prices
       const initialSimulatedPrices = {};
       response.data.forEach((item) => {
         initialSimulatedPrices[item.symbol] =
@@ -68,10 +66,10 @@ const Holdings = () => {
     } catch (error) {
       console.error("Error fetching holdings:", error);
       setLoading(false);
+      toast.error("Failed to fetch holdings.");
     }
   };
 
-  // Calculate simulated portfolio value
   useEffect(() => {
     if (simulationMode) {
       const simulatedTotal = holdings.reduce(
@@ -85,16 +83,13 @@ const Holdings = () => {
     }
   }, [simulatedPrices, holdings, simulationMode]);
 
-  // Initial fetch and setup refresh
   useEffect(() => {
     fetchHoldings();
 
-    // Set up interval for periodic refresh (every 30 seconds)
     const interval = setInterval(fetchHoldings, 30000);
     return () => clearInterval(interval);
   }, [userId, navigate, lastUpdate]);
 
-  // Handle selling stock
   const handleSell = async (holdingId, symbol, quantity) => {
     if (
       window.confirm(
@@ -104,13 +99,11 @@ const Holdings = () => {
       try {
         console.log(`Selling ${quantity} shares of ${symbol}...`);
 
-        // Call backend API to sell stocks
         const sellResponse = await axios.post(
           `http://localhost:8080/api/portfolio/sell/${userId}/${symbol}?quantity=${quantity}`
         );
         console.log("Sell Response:", sellResponse.data);
 
-        // Fetch updated user balance from backend
         const balanceResponse = await axios.get(
           `http://localhost:8080/api/users/${userId}`
         );
@@ -122,7 +115,6 @@ const Holdings = () => {
           console.error("Error: Balance not found in response");
         }
 
-        // Update local holdings state
         setHoldings((prev) => {
           const updated = prev
             .map((item) =>
@@ -130,23 +122,22 @@ const Holdings = () => {
                 ? { ...item, quantity: item.quantity - quantity }
                 : item
             )
-            .filter((item) => item.quantity > 0); // Remove if quantity becomes 0
+            .filter((item) => item.quantity > 0);
           return updated;
         });
 
-        setLastUpdate(Date.now()); // Trigger re-fetch
-        alert(`${quantity} shares of ${symbol} sold successfully!`);
+        setLastUpdate(Date.now());
+        toast.success(`${quantity} shares of ${symbol} sold successfully!`);
       } catch (error) {
         console.error(
           "Error selling stock:",
           error.response ? error.response.data : error
         );
-        alert("Failed to sell stock");
+        toast.error("Failed to sell stock.");
       }
     }
   };
 
-  // Handle price change in simulation
   const handlePriceChange = (symbol, value) => {
     setSimulatedPrices((prev) => ({
       ...prev,
@@ -154,7 +145,6 @@ const Holdings = () => {
     }));
   };
 
-  // Toggle simulation mode
   const toggleSimulation = () => {
     setSimulationMode(!simulationMode);
     if (!simulationMode) {
@@ -176,6 +166,7 @@ const Holdings = () => {
 
   return (
     <div className="container-fluid bg-dark text-light min-vh-100 py-4">
+      <ToastContainer />
       <div className="container">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div className="d-flex align-items-center">

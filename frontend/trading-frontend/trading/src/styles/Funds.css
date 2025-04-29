@@ -240,37 +240,107 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .funds-content {
+  .funds-container {
+    padding: 20px;
+  }
+
+  .funds-title {
+    font-size: 22px;
+  }
+
+  .funds-tabs {
     flex-direction: column;
   }
-  
+
+  .funds-tabs button {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .funds-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .funds-balance,
+  .funds-form {
+    flex: 1;
+    padding: 20px;
+    box-shadow: none;
+  }
+
+  .input-box input {
+    font-size: 18px;
+  }
+
+  .preset-buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .submit-button {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .transaction-history-section {
+    padding: 15px;
+  }
+
+  .transaction-item {
+    padding: 12px;
+  }
+
+  .transaction-details {
+    flex-direction: column;
+    gap: 5px;
+  }
+
   .transaction-header,
   .transaction-details {
     flex-direction: column;
     gap: 5px;
   }
-  
-  .transaction-item {
-    padding: 12px;
+
+  .pagination {
+    flex-direction: column;
+  }
+
+  .pagination button {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
   }
 }
 
-.pagination {
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
+/* For smaller screens like mobile */
+@media (max-width: 480px) {
+  .funds-title {
+    font-size: 20px;
+  }
 
-.pagination button {
-  padding: 5px 10px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  border-radius: 3px;
-}
+  .input-box input {
+    font-size: 16px;
+  }
 
-.pagination button:hover {
-  background-color: #0056b3;
+  .submit-button {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .transaction-item {
+    padding: 10px;
+  }
+
+  .transaction-header {
+    font-size: 14px;
+  }
+
+  .transaction-amount {
+    font-size: 16px;
+  }
+
+  .error-message {
+    font-size: 14px;
+  }
 }
