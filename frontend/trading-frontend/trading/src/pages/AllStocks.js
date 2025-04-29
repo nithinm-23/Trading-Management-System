@@ -73,7 +73,7 @@ const AllStocks = () => {
   // Handle adding stock to a watchlist
   const addToWatchlist = () => {
     if (!selectedWatchlist) {
-      alert("Please select a watchlist!");
+      toast.warn("Please select a watchlist!");
       return;
     }
 
@@ -82,12 +82,12 @@ const AllStocks = () => {
         `http://localhost:8080/api/watchlists/${selectedWatchlist}/stocks/${selectedStock.symbol}`
       )
       .then(() => {
-        alert(`Added ${selectedStock.symbol} to the watchlist!`);
+        toast.success(`Added ${selectedStock.symbol} to the watchlist!`);
         setModalShow(false);
       })
       .catch((err) => {
         console.error("Error adding stock:", err);
-        alert("Failed to add stock.");
+        toast.error("Failed to add stock.");
       });
   };
 

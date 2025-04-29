@@ -30,8 +30,8 @@
 }
 
 .funds-tabs button.active-tab {
-  color: #0d6efd;
-  border-bottom: 3px solid #0d6efd;
+  color: #27548A;
+  border-bottom: 3px solid #27548A;
   font-weight: 600;
 }
 
@@ -120,24 +120,24 @@
 .preset-buttons button {
   flex: 1;
   padding: 10px;
-  border: 1px solid #0d6efd;
+  border: 1px solid #27548A;
   background: white;
   border-radius: 6px;
   cursor: pointer;
-  color: #0d6efd;
+  color: #27548A;
   font-size: 16px;
   transition: 0.3s ease-in-out;
 }
 
 .preset-buttons button:hover {
-  background: #0d6efd;
+  background: #27548A;
   color: white;
 }
 
 .submit-button {
   width: 100%;
   padding: 12px;
-  background: #0d6efd;
+  background: #27548A;
   color: white;
   font-size: 18px;
   border: none;
@@ -148,7 +148,7 @@
 }
 
 .submit-button:hover {
-  background: #0b5ed7;
+  background: #27548A;
 }
 
 .submit-button:disabled {
@@ -183,7 +183,7 @@
   padding: 15px;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #0d6efd;
+  border-left: 4px solid #27548A;
 }
 
 .transaction-header {
@@ -236,6 +236,38 @@
   color: #dc3545;
   margin-top: 10px;
   text-align: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center; /* Center buttons */
+  align-items: center;
+  margin-top: 20px; /* Add some space above pagination */
+  gap: 10px; /* Add space between buttons */
+}
+
+.pagination-button {
+  background-color: #27548A !important; /* Replace with your preferred color */
+   /* Example primary blue */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.pagination-button:disabled {
+  background-color: #6c757d; /* Grey background when disabled */
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Responsive Design */

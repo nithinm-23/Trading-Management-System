@@ -14,7 +14,6 @@ const Home = () => {
       {/* <TradingChart /> */}
       <HeroSection />
       <FeaturesSection />
-      <FeedbackForm />
       <Footer />
     </div>
   );

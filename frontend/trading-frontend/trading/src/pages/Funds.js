@@ -250,13 +250,24 @@ const Funds = () => {
 
             <div className="pagination">
               {currentPage > 1 && (
-                <button onClick={() => setCurrentPage(currentPage - 1)}>
-                  Previous
+                <button
+                  className="pagination-button prev-button" // Added classes
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1} // Good practice to disable when not applicable
+                >
+                  &laquo; Previous {/* Using HTML entity for arrow */}
                 </button>
               )}
+              {/* Optional: Display page numbers here if needed */}
               {currentPage * transactionsPerPage < transactions.length && (
-                <button onClick={() => setCurrentPage(currentPage + 1)}>
-                  Next
+                <button
+                  className="pagination-button next-button" // Added classes
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={
+                    currentPage * transactionsPerPage >= transactions.length
+                  } // Disable when on last page
+                >
+                  Next &raquo; {/* Using HTML entity for arrow */}
                 </button>
               )}
             </div>

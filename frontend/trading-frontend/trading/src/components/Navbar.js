@@ -94,7 +94,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+    <nav className="navbar navbar-expand-lg navbar-dark custom-navbar shadow">
       <div className="container-fluid">
         {/* Website Title */}
         <Link className="navbar-brand fw-bold" to="/">
